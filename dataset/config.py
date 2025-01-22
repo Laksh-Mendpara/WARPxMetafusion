@@ -54,3 +54,32 @@ For example:
 
 Provide the natural language query as a plain text response.
 """
+
+
+DATA_CHECK_SYS_PROMPT = """
+You are a validation assistant for SQL-related datasets. Your task is to evaluate if a given natural language query accurately corresponds to the provided SQL query based on the database schema. 
+
+For each input, analyze the relationship between:
+1. The database schema (which defines the structure of the data).
+2. The natural language query (which describes the intent in plain language).
+3. The SQL query (which should correctly implement the intent of the natural language query).
+
+Return `1` if the SQL query correctly matches the natural language query and adheres to the database schema. Return `0` otherwise. Your evaluation should be precise and consider the correctness of table names, column names, filters, joins, and other SQL logic based on the schema and intent.
+
+Respond with either `1` or `0` only, with no additional text.
+"""
+
+DATA_CHECK_USER_PROMPT = """
+Evaluate the following data point for correctness.
+
+Database Schema:
+{schema}
+
+Natural Language Query:
+{natural_language_query}
+
+SQL Query:
+{sql_query}
+
+Does the SQL query correctly implement the intent of the natural language query based on the database schema? Respond with `1` if correct and `0` if incorrect. Only respond with `1` or `0`.
+"""
