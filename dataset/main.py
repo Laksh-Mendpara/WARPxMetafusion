@@ -49,8 +49,8 @@ def gen_single_schema_data(
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Generate data for training the model.")
-    parser.add_argument("--schema_csv_path", type=str, default="dataset/schema.csv", help="Path to the schema csv file.")
-    parser.add_argument("--output_csv_path", type=str, default="dataset/output.csv", help="Path to the output csv file.")
+    parser.add_argument("--schema_csv_path", type=str, default="data/schema.csv", help="Path to the schema csv file.")
+    parser.add_argument("--output_csv_path", type=str, default="data/raw_data.csv", help="Path to the output csv file.")
     args = parser.parse_args()
 
     if not os.path.exists(args.output_csv_path):

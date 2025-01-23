@@ -34,13 +34,18 @@ def check_single_data(schema: str, natural_query: int, sql_query: int) -> int:
         ]
     ).choices[0].message.content
     
-    return int(response)
+    try:
+        return int(response)
+    except ValueError:
+        logger.error(f"Error in response: {response}")
+        return 0
 
 
-def check_data(data_path: str) -> float:
+def check_data(data_path: str, sample_size: int | None) -> float:
     data = pd.read_csv(data_path)
     data = data.to_dict(orient="records")
-    data = random.sample(data, 200)
+    if sample_size is not None:
+        data = random.sample(data, sample_size)
     correct_data = 0
     total_data = len(data)
     with ProcessPoolExecutor() as executor:
@@ -58,11 +63,12 @@ def check_data(data_path: str) -> float:
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Check generated data for training the model.")
-    parser.add_argument("--data_csv_path", type=str, default="dataset/output.csv", help="Path to the data csv file.")
+    parser.add_argument("--data_csv_path", type=str, default="data/final_data.csv", help="Path to the data csv file.")
+    parser.add_argument("--sample_size", type=int, default=None, help="Number of samples to check.")
     args = parser.parse_args()
 
     if not os.path.exists(args.data_csv_path):
         raise FileNotFoundError(f"File not found at {args.data_csv_path}")
     
-    result = check_data(args.data_csv_path)
+    result = check_data(args.data_csv_path, args.sample_size)
     logger.info(f"Data correctness: {result*100:.2f}%")
