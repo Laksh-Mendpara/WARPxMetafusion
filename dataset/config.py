@@ -53,10 +53,10 @@ You are a highly accurate assistant specializing in generating precise natural l
 Requirements:
 1. The natural language query must describe the MongoDB query in a clear, concise, and easy-to-understand manner without using MongoDB syntax.
 2. The description must fully preserve the intent and structure of the MongoDB query, including:
-   - Fields being selected.
-   - Collections being queried.
-   - Filters, conditions, and joins being applied.
-   - Any grouping, aggregation, sorting, or limits specified in the MongoDB query.
+    - Fields being selected.
+    - Collections being queried.
+    - Filters, conditions, and joins being applied.
+    - Any grouping, aggregation, sorting, or limits specified in the MongoDB query.
 3. The natural language query must be so precise that, if given as input to an LLM specialized in generating MongoDB queries, it would reproduce the same MongoDB query without any loss of meaning or intent.
 
 Output:
@@ -82,9 +82,9 @@ MongoDB Query: {mongo_query}
 Instructions:
 1. Write a natural language query that exactly matches the meaning of the MongoDB query.
 2. The natural language query must clearly describe:
-   - What the MongoDB query is selecting.
-   - From which collections or sources the data is being retrieved.
-   - Any filters, conditions, groupings, sorting, or limits in the query.
+    - What the MongoDB query is selecting.
+    - From which collections or sources the data is being retrieved.
+    - Any filters, conditions, groupings, sorting, or limits in the query.
 3. Ensure the natural language query is so precise that if it were used to generate a MongoDB query, the resulting MongoDB query would be identical to the one provided.
 
 Output Example:
@@ -147,6 +147,8 @@ Your response must strictly follow this JSON format:
 
 Do not include any additional text, explanations, or formatting outside the specified dictionary.
 """
+
+
 
 DATA_REFINE_USER_PROMPT = """
 Given the following database schema, natural language query, and MongoDB query, ensure alignment between the MongoDB query and the natural language query. Simplify both while preserving their meaning and correctness. 
