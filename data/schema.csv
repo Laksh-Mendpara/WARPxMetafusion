@@ -1,152 +1,400 @@
-schema
-"CREATE TABLE employee_1001 (
-  ""EmployeeID"" INTEGER PRIMARY KEY,
-  ""FirstName"" TEXT,
-  ""LastName"" TEXT,
-  ""JobTitle"" TEXT,
-  ""Department"" TEXT,
-  ""Salary"" REAL,
-  ""HireDate"" TIMESTAMP
-)
-"
-"CREATE TABLE attendance_1002 (
-  ""AttendanceID"" INTEGER PRIMARY KEY,
-  ""EmployeeID"" INTEGER,
-  ""CheckInTime"" TIMESTAMP,
-  ""CheckOutTime"" TIMESTAMP,
-  ""Status"" TEXT,
-  FOREIGN KEY (""EmployeeID"") REFERENCES employee_1001(""EmployeeID"")
-)
-"
-"CREATE TABLE salary_1003 (
-  ""SalaryID"" INTEGER PRIMARY KEY,
-  ""EmployeeID"" INTEGER,
-  ""BaseSalary"" REAL,
-  ""Bonus"" REAL,
-  ""Commission"" REAL,
-  ""PaymentDate"" TIMESTAMP,
-  FOREIGN KEY (""EmployeeID"") REFERENCES employee_1001(""EmployeeID"")
-)
-"
-"CREATE TABLE employee_contacts_1004 (
-  ""ContactID"" INTEGER PRIMARY KEY,
-  ""EmployeeID"" INTEGER,
-  ""PhoneNumber"" TEXT,
-  ""Email"" TEXT,
-  ""Address"" TEXT,
-  FOREIGN KEY (""EmployeeID"") REFERENCES employee_1001(""EmployeeID"")
-)
-"
-"CREATE TABLE project_assignments_1005 (
-  ""AssignmentID"" INTEGER PRIMARY KEY,
-  ""EmployeeID"" INTEGER,
-  ""ProjectName"" TEXT,
-  ""StartDate"" TIMESTAMP,
-  ""EndDate"" TIMESTAMP,
-  ""Role"" TEXT,
-  FOREIGN KEY (""EmployeeID"") REFERENCES employee_1001(""EmployeeID"")
-)
-"
-"CREATE TABLE department_2001 (
-  ""DepartmentID"" INTEGER PRIMARY KEY,
-  ""DepartmentName"" TEXT,
-  ""ManagerID"" INTEGER,
-  FOREIGN KEY (""ManagerID"") REFERENCES employee_1001(""EmployeeID"")
-);
+database_id,total_collection,schema
+hr_management,3,"{
+  // Employees Collection
+  “employees”: {
+    _id: ObjectId,
+    employeeId: String,
+    firstName: String,
+    lastName: String,
+    email: String,
+    phone: String,
+    department: String,
+    position: String,
+    salary: Decimal128,
+    hireDate: Date,
+    status: String,
+    managerId: ObjectId,
+    EmergencyContact: {
+      name: String,
+      relationship: String,
+      phone: String
+    }
+  },
 
-CREATE TABLE employee_department_2002 (
-  ""EmployeeID"" INTEGER,
-  ""DepartmentID"" INTEGER,
-  ""StartDate"" TIMESTAMP,
-  ""EndDate"" TIMESTAMP,
-  PRIMARY KEY (""EmployeeID"", ""DepartmentID""),
-  FOREIGN KEY (""EmployeeID"") REFERENCES employee_1001(""EmployeeID""),
-  FOREIGN KEY (""DepartmentID"") REFERENCES department_2001(""DepartmentID"")
-)
+  // Departments Collection
+  “departments”: {
+    _id: ObjectId,
+    name: String,
+    description: String,
+    headId: ObjectId,
+    budget: Decimal128,
+    location: String,
+    createdAt: Date
+  },
+
+  // Leave Records Collection
+  leaveRecords: {
+    _id: ObjectId,
+    employeeId: ObjectId,
+    leaveType: String,
+    startDate: Date,
+    endDate: Date,
+    status: String,
+    reason: String,
+    approvedBy: ObjectId,
+    appliedDate: Date,
+    lastUpdated: Date
+  }
+}
 "
-"CREATE TABLE project_2003 (
-  ""ProjectID"" INTEGER PRIMARY KEY,
-  ""ProjectName"" TEXT,
-  ""StartDate"" TIMESTAMP,
-  ""EndDate"" TIMESTAMP
-);
+ecom,2,"{
+  // Products Collection
+  “products”: {
+    _id: ObjectId,
+    name: String,
+    description: String,
+    price: Decimal128,
+    category: String,
+    stockQuantity: Number,
+    isActive: Boolean,
+    createdAt: Date,
+    updatedAt: Date
+  },
 
-CREATE TABLE employee_projects_2004 (
-  ""EmployeeID"" INTEGER,
-  ""ProjectID"" INTEGER,
-  ""Role"" TEXT,
-  ""AssignmentStart"" TIMESTAMP,
-  ""AssignmentEnd"" TIMESTAMP,
-  PRIMARY KEY (""EmployeeID"", ""ProjectID""),
-  FOREIGN KEY (""EmployeeID"") REFERENCES employee_1001(""EmployeeID""),
-  FOREIGN KEY (""ProjectID"") REFERENCES project_2003(""ProjectID"")
-)
+  // Orders Collection
+  “orders”: {
+    _id: ObjectId,
+    customerId: String,
+    items: [{
+      productId: ObjectId,
+      quantity: Number,
+      price: Decimal128
+    }],
+    totalAmount: Decimal128,
+    status: String,
+    paymentMethod: String,
+    shippingAddress: {
+      street: String,
+      city: String,
+      state: String,
+      zipCode: String,
+      country: String
+    },
+    orderDate: Date,
+    lastUpdated: Date
+  }
+}
 "
-"CREATE TABLE performance_review_2005 (
-  ""ReviewID"" INTEGER PRIMARY KEY,
-  ""EmployeeID"" INTEGER,
-  ""ReviewDate"" TIMESTAMP,
-  ""ReviewerID"" INTEGER,
-  ""Rating"" REAL,
-  ""Comments"" TEXT,
-  FOREIGN KEY (""EmployeeID"") REFERENCES employee_1001(""EmployeeID""),
-  FOREIGN KEY (""ReviewerID"") REFERENCES employee_1001(""EmployeeID"")
-);
+project_management,4,"{
+  // Projects Collection
+  “projects”: {
+    _id: ObjectId,
+    name: String,
+    description: String,
+    startDate: Date,
+    endDate: Date,
+    budget: Decimal128,
+    status: String,
+    clientId: ObjectId,
+    managerId: ObjectId,
+    tags: [String],
+    priority: String
+  },
 
-CREATE TABLE employee_performance_2006 (
-  ""EmployeeID"" INTEGER,
-  ""ReviewID"" INTEGER,
-  ""ReviewScore"" REAL,
-  PRIMARY KEY (""EmployeeID"", ""ReviewID""),
-  FOREIGN KEY (""EmployeeID"") REFERENCES employee_1001(""EmployeeID""),
-  FOREIGN KEY (""ReviewID"") REFERENCES performance_review_2005(""ReviewID"")
-)
+  // Tasks Collection
+  “tasks”: {
+    _id: ObjectId,
+    projectId: ObjectId,
+    title: String,
+    description: String,
+    assignedTo: [ObjectId],
+    status: String,
+    priority: String,
+    startDate: Date,
+    dueDate: Date,
+    completedDate: Date,
+    dependencies: [ObjectId]
+  },
+
+  // Teams Collection
+  “teams”: {
+    _id: ObjectId,
+    name: String,
+    description: String,
+    leadId: ObjectId,
+    Members: [{
+      userId: ObjectId,
+      role: String,
+      joinDate: Date
+    }],
+    projects: [ObjectId],
+    createdAt: Date
+  },
+
+  // TimeSheets Collection
+  timeSheets: {
+    _id: ObjectId,
+    userId: ObjectId,
+    projectId: ObjectId,
+    taskId: ObjectId,
+    date: Date,
+    hours: Number,
+    description: String,
+    status: String,
+    approvedBy: ObjectId,
+    submittedAt: Date
+  }
+}"
+sample_airbnb,1,"{
+  “ListingsAndReviews”: {
+    ""_id"": ""string"",
+    ""url"": ""string"",
+    ""name"": ""string"",
+    ""summary"": ""string"",
+    ""description"": ""string"",
+    ""neighborhood"": ""string"",
+    ""property_type"": ""string"",
+    ""room_type"": ""string"",
+    ""bed_type"": ""string"",
+    ""min_nights"": ""string"",
+    ""max_nights"": ""string"",
+    ""cancellation_policy"": ""string"",
+    ""last_scraped"": ""Date"",
+    ""accommodates"": ""number"",
+    ""bedrooms"": ""number"",
+    ""beds"": ""number"",
+    ""bathrooms"": ""number"",
+    ""reviews"": {
+      ""count"": ""number"",
+      ""first_review"": ""Date"",
+      ""last_review"": ""Date""
+    },
+    ""amenities"": [""string""],
+    ""price"": ""number"",
+    ""security_deposit"": ""number"",
+    ""cleaning_fee"": ""number"",
+    ""images"": {
+      ""thumbnail"": ""string"",
+      ""medium"": ""string"",
+      ""main"": ""string""
+    },
+    ""host"": {
+      ""id"": ""string"",
+      ""name"": ""string"",
+      ""location"": ""string"",
+      ""superhost"": ""boolean"",
+      ""verified"": ""boolean"",
+      ""listings_count"": ""number""
+    },
+    ""address"": {
+      ""street"": ""string"",
+      ""city"": ""string"",
+      ""country"": ""string""
+    }
+  }
+}
 "
-"CREATE TABLE department_3001 (
-  ""DepartmentID"" INTEGER PRIMARY KEY,
-  ""DepartmentName"" TEXT
-);
-
-CREATE TABLE employee_3002 (
-  ""EmployeeID"" INTEGER PRIMARY KEY,
-  ""FirstName"" TEXT,
-  ""LastName"" TEXT,
-  ""DepartmentID"" INTEGER,
-  ""JobTitle"" TEXT,
-  ""Salary"" REAL,
-  FOREIGN KEY (""DepartmentID"") REFERENCES department_3001(""DepartmentID"")
-);
-
-CREATE TABLE salary_history_3003 (
-  ""SalaryID"" INTEGER PRIMARY KEY,
-  ""EmployeeID"" INTEGER,
-  ""SalaryAmount"" REAL,
-  ""EffectiveDate"" TIMESTAMP,
-  FOREIGN KEY (""EmployeeID"") REFERENCES employee_3002(""EmployeeID"")
-)
+sample_geospatial,1,"{
+  “Shipwrecks” : {
+    ""_id"": ""string"",
+    ""record"": ""string"",
+    ""vessel_terms"": ""string"",
+    ""feature_type"": ""string"",
+    ""chart"": ""string"",
+    ""latitude"": ""number"",
+    ""longitude"": ""number"",
+    ""gps_quality"": ""string"",
+    ""depth"": ""string"",
+    ""sounding_type"": ""string"",
+    ""history"": ""string"",
+    ""quasou"": ""string"",
+    ""water_level"": ""string"",
+    ""coordinates"": [""number""]
+  }
+}
 "
-"CREATE TABLE department_4001 (
-  ""DepartmentID"" INTEGER PRIMARY KEY,
-  ""DepartmentName"" TEXT
-);
+sample_mflix,5,"//collection movies
+{
+  ""movies"": {
+    ""_id"": ""string"",
+    ""plot"": ""string"",
+    ""genres"": [""string""],
+    ""runtime"": ""number"",
+    ""rated"": ""string"",
+    ""cast"": [""string""],
+    ""num_mflix_comments"": ""number"",
+    ""poster"": ""string"",
+    ""title"": ""string"",
+    ""fullplot"": ""string"",
+    ""languages"": [""string""],
+    ""released"": ""Date"",
+    ""directors"": [""string""],
+    ""writers"": [""string""],
+    ""awards"": {
+      ""wins"": ""number"",
+      ""nominations"": ""number"",
+      ""text"": ""string""
+    },
+    ""lastupdated"": ""string"",
+    ""countries"": [""string""],
+    ""imdb"": {
+      ""rating"": ""number"",
+      ""votes"": ""number"",
+      ""id"": ""number""
+    },
+    ""year"": ""number"",
+    ""metacritic"": ""number"",
+    ""type"": ""string"",
+    ""tomatoes"": {
+      ""website"": ""string"",
+      ""viewer"": {
+        ""rating"": ""number"",
+        ""numReviews"": ""number"",
+        ""meter"": ""number""
+      },
+      ""dvd"": ""Date"",
+      ""critic"": {
+        ""rating"": ""number"",
+        ""numReviews"": ""number"",
+        ""meter"": ""number""
+      },
+      ""lastUpdated"": ""Date"",
+      ""fresh"": ""number"",
+      ""production"": ""string"",
+      ""boxOffice"": ""string"",
+      ""consensus"": ""string"",
+      ""rotten"": ""number""
+    }
+  }
+}
 
-CREATE TABLE employee_4002 (
-  ""EmployeeID"" INTEGER PRIMARY KEY,
-  ""FirstName"" TEXT,
-  ""LastName"" TEXT,
-  ""JobTitle"" TEXT,
-  ""DepartmentID"" INTEGER,
-  FOREIGN KEY (""DepartmentID"") REFERENCES department_4001(""DepartmentID"")
-);
+//collection theaters
+{
+  ""theaters"": {
+    ""_id"": ""string"",
+    ""theaterId"": ""number"",
+    ""location"": {
+      ""address"": {
+        ""street1"": ""string"",
+        ""city"": ""string"",
+        ""state"": ""string"",
+        ""zipcode"": ""string"",
+        ""street2"": ""string""
+      },
+      ""geo"": {
+        ""type"": ""string"",
+        ""coordinates"": [""number""]
+      }
+    }
+  }
+}
 
-CREATE TABLE employee_projects_4003 (
-  ""EmployeeID"" INTEGER,
-  ""ProjectID"" INTEGER,
-  ""Role"" TEXT,
-  ""StartDate"" TIMESTAMP,
-  ""EndDate"" TIMESTAMP,
-  PRIMARY KEY (""EmployeeID"", ""ProjectID""),
-  FOREIGN KEY (""EmployeeID"") REFERENCES employee_4002(""EmployeeID""),
-  FOREIGN KEY (""ProjectID"") REFERENCES project_2003(""ProjectID"")
-)
+//collection sessions
+{
+  ""sessions"": {
+    ""_id"": ""string"",
+    ""user_id"": ""string"",
+    ""jwt"": ""string""
+  }
+}
+
+//collection users
+{
+  ""users"": {
+    ""_id"": ""string"",
+    ""name"": ""string"",
+    ""email"": ""string"",
+    ""password"": ""string""
+  }
+}
+
+//collection comments
+{
+  ""comments"": {
+    ""_id"": ""string"",
+    ""name"": ""string"",
+    ""email"": ""string"",
+    ""movie_id"": ""string"",
+    ""text"": ""string"",
+    ""date"": ""Date""
+  }
+}
+"
+sample_supplies,1,"// collection sales
+{
+  ""sales"": {
+    ""_id"": ""string"",
+    ""saleDate"": ""Date"",
+    ""items"": [""string""],
+    ""storeLocation"": ""string"",
+    ""customer"": {
+      ""gender"": ""string"",
+      ""age"": ""number"",
+      ""email"": ""string"",
+      ""satisfaction"": ""number""
+    },
+    ""couponUsed"": ""boolean"",
+    ""purchaseMethod"": ""string""
+  }
+}
+"
+sample_weatherdata,1,"// collection: data
+{
+	""_id"": ""Object (primaryKey)"",
+	""st"": ""string"",
+	""ts"": ""Date"",
+	""position"": { ""type"": ""string"", ""coordinates"": ""Array"" },
+	""elevation"": ""number"",
+	""callLetters"": ""string"",
+	""qualityControlProcess"": ""string"",
+	""dataSource"": ""string"",
+	""type"": ""string"",
+	""airTemperature"": { ""value"": ""number"", ""quality"": ""string"" },
+	""dewPoint"": { ""value"": ""number"", ""quality"": ""string"" },
+	""pressure"": { ""value"": ""number"", ""quality"": ""string"" },
+	""wind"": { 
+		""direction"": { ""angle"": ""number"", ""quality"": ""string"" },
+		""type"": ""string"", 
+		""speed"": { ""rate"": ""number"", ""quality"": ""string"" }
+	},
+	""visibility"": { 
+		""distance"": { ""value"": ""number"", ""quality"": ""string"" }, 
+		""variability"": { ""value"": ""string"", ""quality"": ""string"" }
+	},
+	""skyCondition"": {
+		""ceilingHeight"": { ""value"": ""number"", ""quality"": ""string"", ""determination"": ""string"" },
+		""cavok"": ""string""
+	},
+	""sections"": ""Array"",
+	""precipitationEstimatedObservation"": { 
+		""discrepancy"": ""string"", 
+		""estimatedWaterDepth"": ""number"" 
+	},
+	""atmosphericPressureChange"": { 
+		""tendency"": { ""code"": ""string"", ""quality"": ""string"" },
+		""quantity3Hours"": { ""value"": ""number"", ""quality"": ""string"" },
+		""quantity24Hours"": { ""value"": ""number"", ""quality"": ""string"" }
+	},
+	""pastWeatherObservationManual"": ""Array"",
+	""skyConditionObservation"": {
+		""totalCoverage"": { ""value"": ""string"", ""opaque"": ""string"", ""quality"": ""string"" },
+		""lowestCloudCoverage"": { ""value"": ""string"", ""quality"": ""string"" },
+		""lowCloudGenus"": { ""value"": ""string"", ""quality"": ""string"" },
+		""lowestCloudBaseHeight"": { ""value"": ""number"", ""quality"": ""string"" },
+		""midCloudGenus"": { ""value"": ""string"", ""quality"": ""string"" },
+		""highCloudGenus"": { ""value"": ""string"", ""quality"": ""string"" }
+	},
+	""skyCoverLayer"": ""Array"",
+	""seaSurfaceTemperature"": { ""value"": ""number"", ""quality"": ""string"" },
+	""waveMeasurement"": {
+		""method"": ""string"",
+		""waves"": { ""period"": ""number"", ""height"": ""number"", ""quality"": ""string"" },
+		""seaState"": { ""code"": ""string"", ""quality"": ""string"" }
+	},
+	""presentWeatherObservationManual"": ""Array"",
+	""atmosphericPressureObservation"": {
+		""altimeterSetting"": { ""value"": ""number"", ""quality"": ""string"" },
+		""stationPressure"": { ""value"": ""number"", ""quality"": ""string"" }
+	}
+}
 "

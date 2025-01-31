@@ -3,8 +3,6 @@ import os
 from typing_extensions import List, Dict
 import pandas as pd
 from loguru import logger
-from generate_sql_query import get_sql_query
-from generate_text_query import get_text_query
 from tqdm import tqdm
 import random
 import argparse
@@ -18,7 +16,7 @@ load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def check_single_data(schema: str, natural_query: int, sql_query: int) -> int:
+def check_single_data(schema: str, natural_query: int, mongo_query: int) -> int:
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -28,7 +26,7 @@ def check_single_data(schema: str, natural_query: int, sql_query: int) -> int:
                 "content": DATA_CHECK_USER_PROMPT.format(
                     schema=schema,
                     natural_language_query=natural_query,
-                    sql_query=sql_query
+                    mongo_query=mongo_query
                 )
             }
         ]
@@ -53,7 +51,7 @@ def check_data(data_path: str, sample_size: int | None) -> float:
             check_single_data, 
             d["schema"], 
             d["natural_language_query"], 
-            d["sql_query"]
+            d["mongo_query"]
             ) for d in data]
         result = [r.result() for r in tqdm(result, total=total_data, desc="Checking data correctness")]
         correct_data = sum(result)

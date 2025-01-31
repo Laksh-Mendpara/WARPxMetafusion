@@ -1,9 +1,9 @@
 from openai import OpenAI
 import os
-from typing_extensions import List, Dict, Tuple
+from typing_extensions import List, Dict
 from config import (
-    NL_GEN_SYS_PROMPT,
-    NL_GEN_USER_PROMPT
+    MONGO_GEN_SYS_PROMPT,
+    MONGO_GEN_USER_PROMPT
 )
 from loguru import logger
 from dotenv import load_dotenv
@@ -11,24 +11,24 @@ load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def get_text_query(
-        db: tuple[str, str], 
-        mongo_query: str
-    )-> Tuple[str, str, str, str]:
+def get_mongo_query(
+        schema: str, 
+        difficulty_level: int
+    )-> List[str]:
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "developer", "content": NL_GEN_SYS_PROMPT},
+            {"role": "developer", "content": MONGO_GEN_SYS_PROMPT},
             {
                 "role": "user",
-                "content": NL_GEN_USER_PROMPT.format(
-                    schema=db[1],
-                    mongo_query=mongo_query
+                "content": MONGO_GEN_USER_PROMPT.format(
+                    schema=schema,
+                    difficulty_level=difficulty_level
                 )
             }
         ]
-    ).choices[0].message.content
-    return (db[0], db[1], mongo_query, response)
+    ).choices[0].message.content.split("<<SEP>>")
+    return response
 
 if __name__ == "__main__":
     schema = """{
@@ -79,6 +79,9 @@ if __name__ == "__main__":
   }
 }
 """
-    mongo_query = """db.leaveRecords.aggregate([ { $match: { startDate: { $gte: new Date("2023-01-01") } } }, { $group: { _id: "$leaveType", count: { $sum: 1 } } } ]);"""
-    response = get_text_query(("dbid", schema), mongo_query)
-    logger.info(response)
+    difficulty_level = 3
+    queries = get_mongo_query(schema, difficulty_level)
+    print (len(queries))
+    print (type(queries))
+    for query in queries:
+        logger.debug(query)

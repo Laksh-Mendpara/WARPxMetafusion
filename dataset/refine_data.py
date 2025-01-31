@@ -3,8 +3,6 @@ import os
 from typing_extensions import List, Dict
 import pandas as pd
 from loguru import logger
-from generate_sql_query import get_sql_query
-from generate_text_query import get_text_query
 from tqdm import tqdm
 import json
 import argparse
@@ -18,7 +16,7 @@ load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def refine_single_data(schema: str, natural_query: int, sql_query: int) -> int:
+def refine_single_data(database_id: str, schema: str, natural_query: int, mongo_query: int) -> int:
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -28,7 +26,7 @@ def refine_single_data(schema: str, natural_query: int, sql_query: int) -> int:
                 "content": DATA_REFINE_USER_PROMPT.format(
                     schema=schema,
                     natural_language_query=natural_query,
-                    sql_query=sql_query
+                    mongo_query=mongo_query
                 )
             }
         ]
@@ -37,30 +35,33 @@ def refine_single_data(schema: str, natural_query: int, sql_query: int) -> int:
     try:
         response = json.loads(response)
         return (
+            database_id,
             schema, 
-            response['adjusted_sql_query'], 
+            response['adjusted_mongo_query'], 
             response['adjusted_natural_language_query']
         )
     except Exception as e:
         logger.error(f"Error in refining data: {e}")
-        return (schema, sql_query, natural_query)
+        return (database_id, schema, mongo_query, natural_query)
 
 
 def refine_data(data_path: str, outupt_data_path:str) -> pd.DataFrame:
     data = pd.read_csv(data_path)
+    logger.warning(f"{data.columns}")
     data = data.to_dict(orient="records")
     
     with ProcessPoolExecutor() as executor:
         result = [executor.submit(
             refine_single_data, 
+            d["database_id"],
             d["schema"], 
             d["natural_language_query"], 
-            d["sql_query"]
+            d["mongo_query"]
             ) for d in data]
         result = [r.result() for r in tqdm(result, total=len(data), desc="Refining data")]
 
     result = pd.DataFrame(result)
-    result.columns = ["schema", "sql_query", "natural_language_query"]
+    result.columns = ["database_id", "schema", "mongo_query", "natural_language_query"]
     result.to_csv(outupt_data_path, index=False)
     return result
 
