@@ -18,7 +18,6 @@ def split_schemas_by_create_table(schema_list: List[str]) -> List[str]:
             if table.strip():  # Ignore empty or whitespace-only entries
                 # Re-add "CREATE TABLE" to the table schema and strip extra spaces
                 split_schemas.append("CREATE TABLE " + table.strip())
-    
     return list(set(split_schemas))
 
 def check_schema_accuracy(
