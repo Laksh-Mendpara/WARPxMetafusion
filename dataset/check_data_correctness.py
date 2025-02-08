@@ -33,10 +33,8 @@ def check_single_data(schema: str, natural_query: int, mongo_query: int) -> int:
     ).choices[0].message.content
     
     try:
-        return int(response)
-    except ValueError:
-        logger.error(f"Error in response: {response}")
-        return 0
+        response = int(response)
+    
 
 
 def check_data(data_path: str, sample_size: int | None) -> float:

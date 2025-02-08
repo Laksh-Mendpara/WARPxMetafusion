@@ -9,6 +9,7 @@ import argparse
 from config import(
     DATA_REFINE_SYS_PROMPT,
     DATA_REFINE_USER_PROMPT,
+    Model
 )
 from concurrent.futures import ProcessPoolExecutor
 from dotenv import load_dotenv
@@ -18,7 +19,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def refine_single_data(database_id: str, schema: str, natural_query: int, mongo_query: int) -> int:
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=Model,
         messages=[
             {"role": "developer", "content": DATA_REFINE_SYS_PROMPT},
             {

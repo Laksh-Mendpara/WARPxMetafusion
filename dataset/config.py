@@ -1,98 +1,99 @@
-MONGO_GEN_SYS_PROMPT = """
-You are a highly skilled MongoDB assistant. Based on the input database schema and the difficulty level provided, generate 20 MongoDB queries.
+Model = "gpt-4o-mini"
 
-Requirements:
-1. The MongoDB queries must be executable and syntactically correct for the provided database schema.
-2. Ensure that all queries are compatible with the input schema, including proper field and collection names, data types, and relationships.
-3. Tailor the MongoDB queries to match the schema's structure (e.g., embedded documents, references, or data types).
+MONGO_GEN_SYS_PROMPT = """
+You are a highly skilled MongoDB assistant. Based on the input database schema and the difficulty level provided, generate 20 MongoDB queries. Requirements:
+
+- The MongoDB queries must be executable and syntactically correct for the provided database schema.
+- Ensure that all queries are compatible with the input schema, including proper field and collection names, data types, and relationships.
+- Tailor the MongoDB queries to match the schema's structure (e.g., embedded documents, references, or data types).
+- Include numeric data retrieval and comparisons in queries where applicable.
+- Provide a diverse set of queries that cover different aspects of the schema and MongoDB operations.
 
 Difficulty Levels:
-- If the difficulty level is 1 or 2, provide basic queries (e.g., simple find queries or queries involving simple filters).
-- If the difficulty level is 3 or 4, provide intermediate queries (e.g., queries with `$group`, `$match`, `$sort`, `$lookup`, or aggregation pipelines).
-- If the difficulty level is 5, provide advanced queries involving complex aggregations, nested queries, or multi-stage pipelines.
+
+-  If the difficulty level is 1 or 2, provide basic queries (e.g., simple find queries or queries involving simple filters).
+-  If the difficulty level is 3 or 4, provide intermediate queries (e.g., queries with $group, $match, $sort, $lookup, or aggregation pipelines).
+-  If the difficulty level is 5, provide advanced queries involving complex aggregations, nested queries, or multi-stage pipelines.
 
 Output Format:
+
 - Return a list of exactly 20 MongoDB queries.
 - Separate each query with the token <<SEP>>.
 - The queries should be executable based on the given schema, without any additional text or numbering.
 
 Example Output:
-db.employees.find({ department: 'Sales' }); <<SEP>> 
-db.employees.aggregate([ { $lookup: { from: 'departments', localField: 'department_id', foreignField: 'department_id', as: 'department_info' } } ]); <<SEP>>
+db.employees.find({ salary: { $gt: 50000 } }); <<SEP>>
+db.employees.aggregate([ { $group: { _id: "$department", avgSalary: { $avg: "$salary" } } }, { $match: { avgSalary: { $gt: 60000 } } } ]); <<SEP>>
 ...
 """
 
 MONGO_GEN_USER_PROMPT = """
-Given the following database schema and difficulty level, generate 20 MongoDB queries.
+Given the following database schema and difficulty level, generate 20 MongoDB queries. Requirements:
 
-Requirements:
-1. The MongoDB queries must be executable and syntactically correct for the provided database schema.
-2. Ensure all queries are aligned with the schema's structure, including correct collection and field names, relationships, and data types.
-3. Generate exactly 20 MongoDB queries, and separate them using the token <<SEP>>.
+- The MongoDB queries must be executable and syntactically correct for the provided database schema.
+- Ensure all queries are aligned with the schema's structure, including correct collection and field names, relationships, and data types.
+- Include numeric data retrieval and comparisons in queries where applicable.
+- Provide a diverse set of queries that cover different aspects of the schema and MongoDB operations.
+- Generate exactly 20 MongoDB queries, and separate them using the token <<SEP>>.
 
-Schema: {schema}
+Schema: {schema} Difficulty Level: {difficulty_level} If the difficulty level is 1 or 2, provide basic queries (e.g., simple find queries or queries involving simple filters).
+If the difficulty level is 3 or 4, provide intermediate queries (e.g., queries with $group, $match, $sort, $lookup, or aggregation pipelines).
+If the difficulty level is 5, provide advanced queries involving complex aggregations, nested queries, or multi-stage pipelines. Expected Output Format:
 
-Difficulty Level: {difficulty_level}
-
-If the difficulty level is 1 or 2, provide basic queries (e.g., simple find queries or queries involving simple filters).
-If the difficulty level is 3 or 4, provide intermediate queries (e.g., queries with `$group`, `$match`, `$sort`, `$lookup`, or aggregation pipelines).
-If the difficulty level is 5, provide advanced queries involving complex aggregations, nested queries, or multi-stage pipelines.
-
-Expected Output Format:
 - 20 executable MongoDB queries separated by <<SEP>>.
 - No additional text or explanations, just the queries separated by the token.
 
 Example Output:
-db.employees.aggregate([ {{ $group: {{ _id: "$department", count: {{ $sum: 1 }} }} }}, {{ $match: {{ count: {{ $gt: 10 }} }} }} ]); <<SEP>> 
-db.employees.aggregate([ {{ $lookup: {{ from: 'projects', localField: 'employee_id', foreignField: 'employee_id', as: 'projects' }} }}, {{ $match: {{ 'salary': {{ $gt: 60000 }}, 'projects.start_date': {{ $gt: '2023-01-01' }} }} }} ]); <<SEP>>
+db.orders.find({{ total_amount: {{ $gte: 1000 }} }}).sort({{ order_date: -1 }}).limit(5); <<SEP>>
+db.customers.aggregate([ {{ $lookup: {{ from: 'orders', localField: '_id', foreignField: 'customer_id', as: 'customer_orders' }} }}, {{ $match: {{ 'customer_orders.total_amount': {{ $gt: 5000 }} }} }}, {{ $project: {{ name: 1, total_spent: {{ $sum: '$customer_orders.total_amount' }} }} }} ]); <<SEP>>
 """
 
 NL_GEN_SYS_PROMPT = """
-You are a highly accurate assistant specializing in generating precise natural language queries from MongoDB queries. Your task is to ensure that the natural language text query exactly matches the semantics of the given MongoDB query. 
+You are a highly accurate assistant specializing in generating precise natural language queries from MongoDB queries. Your task is to ensure that the natural language text queries exactly match the semantics of the given MongoDB query. Requirements:
 
-Requirements:
-1. The natural language query must describe the MongoDB query in a clear, concise, and easy-to-understand manner without using MongoDB syntax.
-2. The description must fully preserve the intent and structure of the MongoDB query, including:
-    - Fields being selected.
-    - Collections being queried.
-    - Filters, conditions, and joins being applied.
-    - Any grouping, aggregation, sorting, or limits specified in the MongoDB query.
-3. The natural language query must be so precise that, if given as input to an LLM specialized in generating MongoDB queries, it would reproduce the same MongoDB query without any loss of meaning or intent.
+Generate two natural language queries that describe the MongoDB query in a clear, concise, and easy-to-understand manner without using MongoDB syntax.
+Both descriptions must fully preserve the intent and structure of the MongoDB query, including:
+- Fields being selected or projected.
+- Collections being queried.
+- Filters, conditions, and joins being applied.
+- Any grouping, aggregation, sorting, or limits specified in the MongoDB query.
+- Numeric comparisons, date operations, or special operators used.
+The natural language queries must be so precise that, if given as input to an LLM specialized in generating MongoDB queries, it would reproduce the same MongoDB query without any loss of meaning or intent.
+Ensure that both queries are semantically equivalent but use different wording and sentence structures.
 
-Output:
-- Provide the natural language query as a plain text response, strictly aligned with the given MongoDB query.
-- Avoid any ambiguity or omissions in the natural language description to ensure exact alignment.
+Output Format:
 
-Example:
-For the schema and MongoDB query:
-- Schema: An employee database with collections for employees, departments, and salaries.
-- MongoDB Query: db.employees.find({ department: 'Sales' }).sort({ salary: -1 });
-- Output: "Retrieve the documents of employees from the 'employees' collection who belong to the 'Sales' department, sorted by their salary in descending order."
+- Provide two natural language queries that are equivalent in meaning but use different phrasing.
+- Separate the two queries using the <<SEP>> tag.
+- Ensure both descriptions are highly accurate and aligned with the MongoDB query.
+- Do not include any explanations or additional text beyond the two queries.
 
-Your responses must always maintain this level of precision and alignment.
+Example Output:
+Retrieve all documents from the 'employees' collection where the 'department' field is 'Sales', and sort the results by the 'salary' field in descending order. <<SEP>> Find employee records in the 'employees' collection for those working in the Sales department, ordered from highest to lowest salary. Your responses must always maintain this level of precision, alignment, and diversity in expression.
 """
 
 NL_GEN_USER_PROMPT = """
-Given the following database schema and MongoDB query, generate a precise natural language query.
+Given the following database schema and MongoDB query, generate two precise natural language queries with the same meaning but different wording. Schema: {schema} MongoDB Query: {mongo_query} Instructions:
 
-Schema: {schema}
+Write two natural language queries that exactly match the meaning of the MongoDB query.
+Each query must clearly describe:
+- The data being selected or retrieved.
+- The collections or sources involved.
+- All filters, conditions, joins, groupings, sorting, or limits applied.
+- Any numeric operations, date comparisons, or special MongoDB operators used.
 
-MongoDB Query: {mongo_query}
+Ensure both queries are so precise that if either were used to generate a MongoDB query, the resulting query would be identical to the one provided.
+Use different sentence structures and vocabulary for each query while maintaining the same meaning.
+Separate the two natural language queries using <<SEP>> to indicate they are distinct but semantically identical.
 
-Instructions:
-1. Write a natural language query that exactly matches the meaning of the MongoDB query.
-2. The natural language query must clearly describe:
-    - What the MongoDB query is selecting.
-    - From which collections or sources the data is being retrieved.
-    - Any filters, conditions, groupings, sorting, or limits in the query.
-3. Ensure the natural language query is so precise that if it were used to generate a MongoDB query, the resulting MongoDB query would be identical to the one provided.
+Output Format:
 
-Output Example:
-- Schema: An e-commerce database with collections for orders, customers, and products.
-- MongoDB Query: db.orders.aggregate([ {{ $lookup: {{ from: 'products', localField: 'product_id', foreignField: 'product_id', as: 'product_info' }} }}, {{ $match: {{ order_date: {{ $gte: '2023-01-01' }} }} }} ]);
-- Output: "Find all orders from the 'orders' collection where the 'order_date' is on or after January 1, 2023, and include related product information from the 'products' collection."
+    Provide only the two natural language queries, separated by <<SEP>>.
+    Do not include any additional explanations or text.
+    Ensure each query is a single, coherent sentence or paragraph.
 
-Provide your response as a plain text natural language query without any additional text or formatting.
+Example Output:
+Retrieve all order documents from the 'orders' collection where the order date is January 1, 2023, or later, and include the corresponding product information by joining with the 'products' collection using the product_id field. <<SEP>> Find orders placed on or after 01/01/2023 in the 'orders' collection, enriching each order with its associated product details from the 'products' collection based on matching product IDs. Provide your response as plain text, ensuring the two queries are correctly formatted and separated by <<SEP>>.
 """
 
 DATA_CHECK_SYS_PROMPT = """

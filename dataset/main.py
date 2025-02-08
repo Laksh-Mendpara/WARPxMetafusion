@@ -41,6 +41,7 @@ def gen_single_schema_data(
         # Use as_completed to process results as they are completed
         data = [i.result() for i in tqdm(text_queires, total=len(mongo_queries_temp), desc="Generating text queries.")]
     
+    data = [item for sublist in data for item in sublist]
     df = pd.read_csv(args.output_csv_path)
     df_temp = pd.DataFrame(data, columns=['database_id', 'schema', 'mongo_query', 'natural_language_query'])
 

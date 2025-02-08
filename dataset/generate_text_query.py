@@ -3,7 +3,8 @@ import os
 from typing_extensions import List, Dict, Tuple
 from config import (
     NL_GEN_SYS_PROMPT,
-    NL_GEN_USER_PROMPT
+    NL_GEN_USER_PROMPT,
+    Model
 )
 from loguru import logger
 from dotenv import load_dotenv
@@ -14,11 +15,11 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 def get_text_query(
         db: tuple[str, str], 
         mongo_query: str
-    )-> Tuple[str, str, str, str]:
+    )-> List[Tuple[str, str, str, str]]:
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=Model,
         messages=[
-            {"role": "developer", "content": NL_GEN_SYS_PROMPT},
+            {"role": "system", "content": NL_GEN_SYS_PROMPT},
             {
                 "role": "user",
                 "content": NL_GEN_USER_PROMPT.format(
@@ -27,8 +28,8 @@ def get_text_query(
                 )
             }
         ]
-    ).choices[0].message.content
-    return (db[0], db[1], mongo_query, response)
+    ).choices[0].message.content.split("<<SEP>>")
+    return [(db[0], db[1], mongo_query, response[0]), (db[0], db[1], mongo_query, response[1])]
 
 if __name__ == "__main__":
     schema = """{

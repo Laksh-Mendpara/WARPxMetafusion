@@ -3,7 +3,8 @@ import os
 from typing_extensions import List, Dict
 from config import (
     MONGO_GEN_SYS_PROMPT,
-    MONGO_GEN_USER_PROMPT
+    MONGO_GEN_USER_PROMPT,
+    Model
 )
 from loguru import logger
 from dotenv import load_dotenv
@@ -16,9 +17,9 @@ def get_mongo_query(
         difficulty_level: int
     )-> List[str]:
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=Model,
         messages=[
-            {"role": "developer", "content": MONGO_GEN_SYS_PROMPT},
+            {"role": "system", "content": MONGO_GEN_SYS_PROMPT},
             {
                 "role": "user",
                 "content": MONGO_GEN_USER_PROMPT.format(
