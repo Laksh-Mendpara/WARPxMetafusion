@@ -29,6 +29,8 @@ def get_text_query(
             }
         ]
     ).choices[0].message.content.split("<<SEP>>")
+    ## clean the response
+    response = [i.replace("\n", " ").strip() for i in response]
     return [(db[0], db[1], mongo_query, response[0]), (db[0], db[1], mongo_query, response[1])]
 
 if __name__ == "__main__":

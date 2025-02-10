@@ -48,52 +48,60 @@ db.orders.find({{ total_amount: {{ $gte: 1000 }} }}).sort({{ order_date: -1 }}).
 db.customers.aggregate([ {{ $lookup: {{ from: 'orders', localField: '_id', foreignField: 'customer_id', as: 'customer_orders' }} }}, {{ $match: {{ 'customer_orders.total_amount': {{ $gt: 5000 }} }} }}, {{ $project: {{ name: 1, total_spent: {{ $sum: '$customer_orders.total_amount' }} }} }} ]); <<SEP>>
 """
 
-NL_GEN_SYS_PROMPT = """
-You are a highly accurate assistant specializing in generating precise natural language queries from MongoDB queries. Your task is to ensure that the natural language text queries exactly match the semantics of the given MongoDB query. Requirements:
 
-Generate two natural language queries that describe the MongoDB query in a clear, concise, and easy-to-understand manner without using MongoDB syntax.
-Both descriptions must fully preserve the intent and structure of the MongoDB query, including:
-- Fields being selected or projected.
-- Collections being queried.
-- Filters, conditions, and joins being applied.
-- Any grouping, aggregation, sorting, or limits specified in the MongoDB query.
-- Numeric comparisons, date operations, or special operators used.
-The natural language queries must be so precise that, if given as input to an LLM specialized in generating MongoDB queries, it would reproduce the same MongoDB query without any loss of meaning or intent.
-Ensure that both queries are semantically equivalent but use different wording and sentence structures.
+NL_GEN_SYS_PROMPT = """  
+You are a highly accurate assistant specializing in transforming database queries into precise, natural language descriptions. Your task is to ensure that the natural language queries fully capture the intent and logic of the given database query without referencing specific syntax or collection names.  
 
-Output Format:
+### Requirements:  
+- Generate two distinct natural language queries that clearly and concisely describe the original database query.  
+- Both queries must fully preserve the structure and intent, including:  
+  - The type of data being retrieved.  
+  - Any conditions, filters, or constraints applied.  
+  - Grouping, aggregations, sorting, or limitations.  
+  - Numeric comparisons, date-based operations, or any special conditions.  
+- The generated descriptions must be precise enough that an expert could reconstruct the original database query without losing any essential details.  
+- Ensure that the two descriptions convey identical meaning but use different wording and sentence structures.  
 
-- Provide two natural language queries that are equivalent in meaning but use different phrasing.
-- Separate the two queries using the <<SEP>> tag.
-- Ensure both descriptions are highly accurate and aligned with the MongoDB query.
-- Do not include any explanations or additional text beyond the two queries.
+### Output Format:  
+- Provide exactly two natural language descriptions.  
+- Separate them using the `<<SEP>>` tag.  
+- Do not include any MongoDB syntax, database terminology, or explicit references to collection names.  
+- Avoid any explanations or extra text beyond the two queries.  
+"""  
 
-Example Output:
-Retrieve all documents from the 'employees' collection where the 'department' field is 'Sales', and sort the results by the 'salary' field in descending order. <<SEP>> Find employee records in the 'employees' collection for those working in the Sales department, ordered from highest to lowest salary. Your responses must always maintain this level of precision, alignment, and diversity in expression.
-"""
+NL_GEN_USER_PROMPT = """  
+Given the following database query, generate two precise natural language descriptions that fully capture its meaning while avoiding direct references to database syntax or collection names.  
 
-NL_GEN_USER_PROMPT = """
-Given the following database schema and MongoDB query, generate two precise natural language queries with the same meaning but different wording. Schema: {schema} MongoDB Query: {mongo_query} Instructions:
+### Query Details:  
+- **Schema Overview:**  
+  {schema}  
 
-Write two natural language queries that exactly match the meaning of the MongoDB query.
-Each query must clearly describe:
-- The data being selected or retrieved.
-- The collections or sources involved.
-- All filters, conditions, joins, groupings, sorting, or limits applied.
-- Any numeric operations, date comparisons, or special MongoDB operators used.
+- **Database Query:**  
+  ```json  
+  {mongo_query}  
+  ```  
 
-Ensure both queries are so precise that if either were used to generate a MongoDB query, the resulting query would be identical to the one provided.
-Use different sentence structures and vocabulary for each query while maintaining the same meaning.
-Separate the two natural language queries using <<SEP>> to indicate they are distinct but semantically identical.
+### Instructions:  
+- Express the exact meaning of the query in two different ways while ensuring clarity and precision.  
+- Both descriptions must:  
+  - Accurately reflect the data being retrieved and any applied filters, conditions, or transformations.  
+  - Clearly describe how records are grouped, sorted, or aggregated.  
+  - Preserve numeric operations, date comparisons, and special conditions without using database-specific terms.  
+- The descriptions should be distinct in structure and phrasing but identical in intent.  
+- Do not include database terms like "collection," "query," or "filter operators."  
 
-Output Format:
+### Output Format:  
+- Provide only the two natural language descriptions.  
+- Separate them with `<<SEP>>`.  
+- Ensure each is a single, coherent sentence or paragraph.  
+- Do not include explanations or additional commentary.  
 
-    Provide only the two natural language queries, separated by <<SEP>>.
-    Do not include any additional explanations or text.
-    Ensure each query is a single, coherent sentence or paragraph.
-
-Example Output:
-Retrieve all order documents from the 'orders' collection where the order date is January 1, 2023, or later, and include the corresponding product information by joining with the 'products' collection using the product_id field. <<SEP>> Find orders placed on or after 01/01/2023 in the 'orders' collection, enriching each order with its associated product details from the 'products' collection based on matching product IDs. Provide your response as plain text, ensuring the two queries are correctly formatted and separated by <<SEP>>.
+#### Example Output:  
+```  
+Retrieve the names and total purchase amounts of customers who have placed orders worth more than $100 since January 1, 2023. The results should be sorted in descending order based on the total purchase amount, showing only the top five customers.  
+<<SEP>>  
+List the top five customers who made purchases exceeding $100 starting from January 1, 2023. Show only their names and total spending, with results ranked from highest to lowest purchase amount.  
+```  
 """
 
 DATA_CHECK_SYS_PROMPT = """
