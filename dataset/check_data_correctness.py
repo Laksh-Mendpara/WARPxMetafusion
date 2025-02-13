@@ -76,7 +76,7 @@ def check_data(data_path: str, sample_size: int | None) -> float:
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Check generated data for training the model.")
-    parser.add_argument("--data_csv_path", type=str, default="data/final_data.csv", help="Path to the data csv file.")
+    parser.add_argument("--data_path", type=str, default="data/final_data.csv", help="Path to the data csv file.")
     parser.add_argument("--sample_size", type=int, default=None, help="Number of samples to check.")
     parser.add_argument("--correct_data_path", type=str, default="data/data.csv", help="Path to save the correct data.")
     args = parser.parse_args()

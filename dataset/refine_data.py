@@ -68,8 +68,8 @@ def refine_data(data_path: str, outupt_data_path:str) -> pd.DataFrame:
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Check generated data for training the model.")
-    parser.add_argument("--data_csv_path", type=str, default="data/raw_data.csv", help="Path to the data csv file.")
-    parser.add_argument("--output_data_csv_path", type=str, default="data/final_data.csv", help="Path to save the refined data.")
+    parser.add_argument("--data_path", type=str, default="data/raw_data.csv", help="Path to the data csv file.")
+    parser.add_argument("--output_data_path", type=str, default="data/final_data.csv", help="Path to save the refined data.")
     args = parser.parse_args()
 
     if not os.path.exists(args.data_csv_path):
