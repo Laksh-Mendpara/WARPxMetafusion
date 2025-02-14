@@ -1,6 +1,6 @@
 fast_model_config = {
     "model_name": "unsloth/Qwen2.5-0.5B-Instruct",
-    "max_seq_lenght": 4096,
+    "max_seq_length": 4096,
     "dtype": None,
     "load_in_4bit": True
 }

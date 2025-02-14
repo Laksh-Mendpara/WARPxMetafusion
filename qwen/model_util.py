@@ -3,7 +3,7 @@ from config.model_config import(
     fast_model_config,
     peft_model_config
 )
-from typing_extensions import Any
+from typing_extensions import Dict, Any
 
 def load_fast_model():
     model, tokenizer = FastLanguageModel.from_pretrained(
@@ -11,15 +11,17 @@ def load_fast_model():
     )
     return model, tokenizer
 
-def load_peft_model(model):
+def load_peft_model(model, config):
+    merged_config = {**peft_model_config, **(config or {})}
+    merged_config = {k: merged_config[k] for k in peft_model_config.keys()}
     return FastLanguageModel.get_peft_model(
-        model
-        **peft_model_config
+        model,
+        **merged_config
     )
 
-def load_model():
+def load_model(config: Dict[str, Any] = None):
     model, tokenizer = load_fast_model()
-    model = load_peft_model(model)
+    model = load_peft_model(model, config)
     return model, tokenizer
 
 def get_param_details(model: Any) -> str:

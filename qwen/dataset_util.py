@@ -1,7 +1,7 @@
 import pandas as pd
 from datasets import Dataset
 from typing import List, Dict, Any
-from config.prompt_config import MODEL_PROMPT
+from config.prompt_config import MODEL_PROMPT, SYSTEM_PROMPT
 from unsloth.chat_templates import (
     get_chat_template,
     standardize_sharegpt
@@ -30,15 +30,17 @@ def convert_to_chat_template(dataset: Dataset, tokenizer: Any):
     tokenizer = get_chat_template(
         tokenizer,
         chat_template = "qwen-2.5",
+        system_message = SYSTEM_PROMPT
     )
     def formatting_prompts_func(examples):
         convos = examples["conversations"]
         texts = [tokenizer.apply_chat_template(convo, tokenize = False, add_generation_prompt = False) for convo in convos]
         return { "text" : texts, }
     dataset = dataset.map(formatting_prompts_func, batched = True,)
+    return dataset
 
 def get_data(file_path: str, tokenizer: Any) -> Dataset:
     df = load_data_from_csv(file_path)
     dataset = get_data_in_req_format(df)
-    convert_to_chat_template(dataset, tokenizer)
+    dataset = convert_to_chat_template(dataset, tokenizer)
     return dataset

@@ -9,14 +9,22 @@ from config.training_config import (
 )
 from unsloth.chat_templates import train_on_responses_only
 from datasets import Dataset
-from typing_extensions import Any 
+from typing_extensions import Dict, Any
 from loguru import logger
 
 def get_trainer(model: Any, 
                 train_dataset: Dataset, 
                 eval_dataset: Dataset, 
-                tokenizer: Any
+                tokenizer: Any,
+                config: Dict[str, Any] = None
     ) -> SFTTrainer:
+
+    merged_sft_config = {**sft_argument, **(config or {})}
+    merged_sft_config = {k: merged_sft_config[k] for k in sft_argument.keys()}
+
+    merged_training_config = {**training_argument, **(config or {})}
+    merged_training_config = {k: merged_training_config[k] for k in training_argument.keys()}
+    
     trainer = SFTTrainer(
         model=model,
         tokenizer=tokenizer,
@@ -25,9 +33,9 @@ def get_trainer(model: Any,
         data_collator=DataCollatorForSeq2Seq(
             tokenizer=tokenizer
         ),
-        **sft_argument,
+        **merged_sft_config,
         args = TrainingArguments(
-            **training_argument
+            **merged_training_config
         )
     )
     trainer = train_on_responses_only(

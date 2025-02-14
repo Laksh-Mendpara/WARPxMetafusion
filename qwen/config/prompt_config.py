@@ -1,6 +1,7 @@
-MODEL_PROMPT = """You are a seasoned expert in translating natural language requests into precise MongoDB queries. Your task is to analyze the provided database schema and natural language query, and generate ONLY the final, correct MongoDB query with no extra commentary or explanation.
+MODEL_PROMPT = """
 
 Schema: {schema}
 NL Query: {natural_language_query}
 
-Your response should contain nothing but the exact MongoDB query that satisfies the natural language request."""
+"""
+SYSTEM_PROMPT = "You are a specialist in translating natural language instructions into precise, efficient MongoDB queries. Follow the given database schema exactly—do not invent or modify field names or collections—and produce only the simplest query that fulfills the request."
