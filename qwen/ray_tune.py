@@ -19,10 +19,9 @@ def file_name(config):
         fname += "{}_{}_".format(key, val) 
     return fname
 
-
-def train_model(config, is_normal=False):
+def train_model(config):
     
-    train_data_path = "/data/meta/WARPxMetafusion/data/data_v4.csv"
+    train_data_path = "/data/meta/WARPxMetafusion/data/data_v5.csv"
     eval_data_path = "/data/meta/WARPxMetafusion/data/eval_data_v4.csv"
     root_dir_path = "/data/meta/WARPxMetafusion/outputs"
     output_dir_name = file_name(config)
@@ -77,7 +76,7 @@ def main():
         "per_device_train_batch_size": tune.choice([8, 16, 32, 64]),
         "learning_rate": tune.loguniform(1e-6, 1e-3),
         "weight_decay": tune.loguniform(1e-5, 1e-1),
-        "lr_scheduler_type": tune.choice(["linear", "cosine_with_restarts", "reduce_lr_on_plateau"]),
+        "lr_scheduler_type": tune.choice(["cosine_with_restarts", "reduce_lr_on_plateau"]),
         "lora_alpha": tune.choice([16, 32, 64]),
         "warmup_ratio": tune.uniform(0.03, 0.2),
         "lora_dropout": tune.uniform(0, 0.2),
@@ -104,7 +103,7 @@ def main():
         tune.with_resources(train_model, {'cpu': 64, 'gpu': 1}),
         tune_config=tune.TuneConfig(
             search_alg=algo,
-            num_samples=30,
+            num_samples=10,
             metric="loss",
             mode="min"
         ),
