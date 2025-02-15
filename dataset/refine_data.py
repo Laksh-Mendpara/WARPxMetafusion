@@ -72,8 +72,8 @@ if __name__=="__main__":
     parser.add_argument("--output_data_path", type=str, default="data/final_data.csv", help="Path to save the refined data.")
     args = parser.parse_args()
 
-    if not os.path.exists(args.data_csv_path):
-        raise FileNotFoundError(f"File not found at {args.data_csv_path}")
+    if not os.path.exists(args.data_path):
+        raise FileNotFoundError(f"File not found at {args.data_path}")
     
-    result = refine_data(args.data_csv_path, args.output_data_csv_path)
+    result = refine_data(args.data_path, args.output_data_path)
     

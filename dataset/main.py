@@ -9,6 +9,7 @@ from tqdm import tqdm
 import argparse
 from concurrent.futures import ProcessPoolExecutor
 from dotenv import load_dotenv
+import time
 load_dotenv()
 
 def load_schema(schema_csv_path: str)-> List[tuple[str, str]]:
@@ -29,7 +30,8 @@ def gen_single_schema_data(
         # Use as_completed to process results as they are completed
         mongo_queries_temp = [i.result() for i in tqdm(mongo_queries_temp, total=5, desc="Generating Mongo queries ")]
 
-
+    time.sleep(1)
+    
     mongo_queries_temp = [item for sublist in mongo_queries_temp for item in sublist]
     data = []
     logger.debug(f"len - {len(mongo_queries_temp)}")
@@ -47,7 +49,7 @@ def gen_single_schema_data(
 
     df = pd.concat([df, df_temp], ignore_index=True)
     df.to_csv(args.output_csv_path, index=False)
-
+    time.sleep(5)
     return data
 
 if __name__=="__main__":

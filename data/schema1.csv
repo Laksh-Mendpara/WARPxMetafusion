@@ -1,0 +1,534 @@
+database_id,schema
+traffic_event,"{
+  ""collections"": [{
+    ""name"": ""traffic_events"",
+    ""document"": {
+      ""properties"": {
+        ""identifier"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""intersection_id"": {""description"": ""Filter by traffic junction""},
+            ""camera_id"": {""description"": ""Filter by surveillance unit""}
+          }
+        },
+        ""response"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""event"": {
+              ""properties"": {
+                ""severity"": {""description"": ""Critical, High, Low""},
+                ""type"": {""description"": ""Speeding, RedLightViolation, IllegalParking""},
+                ""vehicles"": {
+                  ""bsonType"": ""array"",
+                  ""items"": {
+                    ""properties"": {
+                      ""number_plate"": {
+                        ""bsonType"": ""string"",
+                        ""pattern"": ""^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$""
+                      },
+                      ""speed"": {""bsonType"": ""double""},
+                      ""timestamp"": {""bsonType"": ""date""},
+                      ""location"": {
+                        ""bsonType"": ""array"",
+                        ""items"": {""bsonType"": ""double""}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }],
+  ""version"": 2
+}
+"
+toll_event,"{
+  ""collections"": [{
+    ""name"": ""toll_events"",
+    ""document"": {
+      ""properties"": {
+        ""identifier"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""highway_id"": {""description"": ""Filter by road network""},
+            ""lane_number"": {""bsonType"": ""int""}
+          }
+        },
+        ""response"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""event"": {
+              ""properties"": {
+                ""transaction"": {
+                  ""bsonType"": ""object"",
+                  ""properties"": {
+                    ""amount"": {""bsonType"": ""decimal""},
+                    ""timestamp"": {""bsonType"": ""date""},
+                    ""vehicle_class"": {""bsonType"": ""int""},
+                    ""axle_count"": {""bsonType"": ""int""}
+                  }
+                },
+                ""identification"": {
+                  ""bsonType"": ""object"",
+                  ""properties"": {
+                    ""number_plate"": {""bsonType"": ""string""},
+                    ""rfid_tag"": {""bsonType"": ""long""}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }],
+  ""version"": 2
+}
+"
+parking_event,"{
+  ""collections"": [{
+    ""name"": ""parking_events"",
+    ""document"": {
+      ""properties"": {
+        ""identifier"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""parking_lot_id"": {""description"": ""Filter by facility""},
+            ""zone"": {""bsonType"": ""int""}
+          }
+        },
+        ""response"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""event"": {
+              ""properties"": {
+                ""entry_time"": {""bsonType"": ""date""},
+                ""exit_time"": {""bsonType"": ""date""},
+                ""duration_mins"": {""bsonType"": ""double""},
+                ""vehicle"": {
+                  ""bsonType"": ""object"",
+                  ""properties"": {
+                    ""number_plate"": {""bsonType"": ""string""},
+                    ""space_occupied"": {""bsonType"": ""int""},
+                    ""weight_kg"": {""bsonType"": ""double""}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }],
+  ""version"": 2
+}
+"
+patient_event,"{
+  ""collections"": [
+    {
+      ""name"": ""patient_events"",
+      ""document"": {
+        ""properties"": {
+          ""identifier"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""hospital_id"": {""description"": ""Filter by medical facility""},
+              ""ward_number"": {""description"": ""Filter by department""},
+              ""bed_id"": {""description"": ""Filter by patient bed""}
+            }
+          },
+          ""response"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""event"": {
+                ""properties"": {
+                  ""priority"": {""description"": ""Emergency, Urgent, Routine""},
+                  ""alert_type"": {""description"": ""FallDetected, VitalSigns, Medication""},
+                  ""biometrics"": {
+                    ""bsonType"": ""array"",
+                    ""items"": {
+                      ""properties"": {
+                        ""heart_rate"": {},
+                        ""blood_pressure"": {},
+                        ""oxygen_saturation"": {},
+                        ""movement_patterns"": {}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  ""version"": 1
+}
+"
+store_event,"{
+  ""collections"": [
+    {
+      ""name"": ""store_events"",
+      ""document"": {
+        ""properties"": {
+          ""identifier"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""store_id"": {""description"": ""Filter by retail location""},
+              ""aisle_number"": {""description"": ""Filter by store section""},
+              ""pos_terminal"": {""description"": ""Filter by checkout station""}
+            }
+          },
+          ""response"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""event"": {
+                ""properties"": {
+                  ""type"": {""description"": ""Purchase, Return, Browse""},
+                  ""customer_profile"": {
+                    ""bsonType"": ""array"",
+                    ""items"": {
+                      ""properties"": {
+                        ""age_group"": {},
+                        ""basket_items"": {},
+                        ""dwell_time"": {},
+                        ""staff_interaction"": {}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  ""version"": 1
+}
+"
+meta_event,"{
+  ""collections"": [
+    {
+      ""name"": ""events"",
+      ""document"": {
+        ""properties"": {
+          ""identifier"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""camgroup_id"": {
+                ""description"": ""Use this to filter events by group"",
+              },
+              ""task_id"": {
+                ""description"": ""Use this to filter events by tasks"",
+              }
+              ""camera_id"": {
+                ""description"": ""Use this to filter events by camera"",
+              }
+            }
+          },
+          ""response"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""event"": {
+                ""bsonType"": ""object"",
+                ""properties"": {
+                  ""severity"": {
+                    ""description"": ""Can be Low, Medium, Critical""
+                  },
+                  ""type"": {
+                    ""description"": ""Type of the event. Use this to filter events of person and vehicle""
+                  },
+                  ""blobs"": {
+                    ""bsonType"": ""array"",
+                    ""items"": {
+                      ""bsonType"": ""object"",
+                      ""properties"": {
+                        ""url"": {
+                        },
+                        ""attribs"": {
+                          ""description"": ""Use this for attributes like Gender (Only Male, Female), Upper Clothing, Lower Clothing, Age (Ranges like 20-30, 30-40 and so on) for people and Make (like maruti suzuki, toyota, tata), Color, Type (like Hatchback, sedan, xuv), label (like car, truck, van, three wheeler, motorcycle) for Vehicles""
+                        },
+                        ""label"": {
+                          ""description"": ""Use this label for number plate""
+                        },
+                        ""score"": {
+                          ""description"": ""Use this for confidence for the blob""
+                        },
+                        ""match_id"": {
+                          ""description"": ""Use this match_id for name of the person""
+                        },
+                        ""severity"": {
+                        },
+                        ""subclass"": {
+                          ""description"": ""Use this for subclass for the blob""
+                        }
+                      }
+                    },
+                  },
+                  ""c_timestamp"": {
+                    ""description"": ""Use this for timestamp""
+                  },
+                  ""label"": {
+                    ""description"": ""Use this label for number plate""
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  ""version"": 1
+}"
+transit_event,"{
+  ""collections"": [{
+    ""name"": ""transit_events"",
+    ""document"": {
+      ""properties"": {
+        ""identifier"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""route_id"": {""description"": ""Filter by bus or train route""},
+            ""vehicle_id"": {""description"": ""Filter by specific vehicle""}
+          }
+        },
+        ""response"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""event"": {
+              ""properties"": {
+                ""status"": {""description"": ""OnTime, Delayed, Cancelled""},
+                ""type"": {""description"": ""ArrivalDeparture, Maintenance, Incident""},
+                ""passengers"": {
+                  ""bsonType"": ""array"",
+                  ""items"": {
+                    ""properties"": {
+                      ""ticket_id"": {
+                        ""bsonType"": ""string"",
+                        ""pattern"": ""^[A-Z]{3}[0-9]{6}$""
+                      },
+                      ""boarding_time"": {""bsonType"": ""date""},
+                      ""destination_stop"": {""bsonType"": ""string""},
+                      ""fare_amount"": {""bsonType"": ""decimal""}
+                    }
+                  }
+                },
+                ""location"": {
+                  ""bsonType"": ""object"",
+                  ""properties"": {
+                    ""coordinates"": {
+                      ""bsonType"": ""array"",
+                      ""items"": {""bsonType"": ""double""}
+                    },
+                    ""next_stop"": {""bsonType"": ""string""},
+                    ""estimated_arrival"": {""bsonType"": ""date""}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }],
+  ""version"": 2
+}
+"
+employee_recode,"{
+  ""collections"": [{
+    ""name"": ""employee_records"",
+    ""document"": {
+      ""properties"": {
+        ""identifier"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""employee_id"": {
+              ""bsonType"": ""string"",
+              ""pattern"": ""^EMP[0-9]{6}$"",
+              ""description"": ""Unique employee identifier""
+            },
+            ""department_id"": {
+              ""bsonType"": ""string"",
+              ""description"": ""Department identifier""
+            }
+          }
+        },
+        ""personal_info"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""first_name"": {""bsonType"": ""string""},
+            ""last_name"": {""bsonType"": ""string""},
+            ""date_of_birth"": {""bsonType"": ""date""},
+            ""email"": {""bsonType"": ""string""},
+            ""phone_number"": {""bsonType"": ""string""}
+          }
+        },
+        ""employment_details"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""job_title"": {""bsonType"": ""string""},
+            ""hire_date"": {""bsonType"": ""date""},
+            ""salary"": {""bsonType"": ""decimal""},
+            ""manager_id"": {
+              ""bsonType"": ""string"",
+              ""pattern"": ""^EMP[0-9]{6}$""
+            }
+          }
+        },
+        ""performance"": {
+          ""bsonType"": ""array"",
+          ""items"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""review_date"": {""bsonType"": ""date""},
+              ""rating"": {""bsonType"": ""int"", ""minimum"": 1, ""maximum"": 5},
+              ""comments"": {""bsonType"": ""string""}
+            }
+          }
+        },
+        ""skills"": {
+          ""bsonType"": ""array"",
+          ""items"": {""bsonType"": ""string""}
+        },
+        ""projects"": {
+          ""bsonType"": ""array"",
+          ""items"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""project_id"": {""bsonType"": ""string""},
+              ""project_name"": {""bsonType"": ""string""},
+              ""start_date"": {""bsonType"": ""date""},
+              ""end_date"": {""bsonType"": ""date""},
+              ""role"": {""bsonType"": ""string""}
+            }
+          }
+        },
+        ""benefits"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""health_insurance"": {""bsonType"": ""bool""},
+            ""retirement_plan"": {""bsonType"": ""bool""},
+            ""vacation_days"": {""bsonType"": ""int""}
+          }
+        }
+      }
+    }
+  }],
+  ""version"": 2
+}
+"
+management_team,"{
+  ""collections"": [{
+    ""name"": ""management_team"",
+    ""document"": {
+      ""properties"": {
+        ""identifier"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""manager_id"": {
+              ""bsonType"": ""string"",
+              ""pattern"": ""^MGR[0-9]{5}$"",
+              ""description"": ""Unique manager identifier""
+            },
+            ""division_code"": {
+              ""bsonType"": ""string"",
+              ""description"": ""Division identifier""
+            }
+          }
+        },
+        ""personal_info"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""first_name"": {""bsonType"": ""string""},
+            ""last_name"": {""bsonType"": ""string""},
+            ""date_of_birth"": {""bsonType"": ""date""},
+            ""email"": {""bsonType"": ""string""},
+            ""phone_number"": {""bsonType"": ""string""}
+          }
+        },
+        ""position_details"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""title"": {""bsonType"": ""string""},
+            ""level"": {""bsonType"": ""int"", ""minimum"": 1, ""maximum"": 5},
+            ""start_date"": {""bsonType"": ""date""},
+            ""reports_to"": {
+              ""bsonType"": ""string"",
+              ""pattern"": ""^MGR[0-9]{5}$""
+            }
+          }
+        },
+        ""compensation"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""base_salary"": {""bsonType"": ""decimal""},
+            ""bonus_percentage"": {""bsonType"": ""double"", ""minimum"": 0, ""maximum"": 100},
+            ""stock_options"": {""bsonType"": ""int""}
+          }
+        },
+        ""performance_metrics"": {
+          ""bsonType"": ""array"",
+          ""items"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""year"": {""bsonType"": ""int""},
+              ""kpi_achievement"": {""bsonType"": ""double"", ""minimum"": 0, ""maximum"": 100},
+              ""team_satisfaction_score"": {""bsonType"": ""double"", ""minimum"": 1, ""maximum"": 5},
+              ""projects_completed"": {""bsonType"": ""int""}
+            }
+          }
+        },
+        ""team_size"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""direct_reports"": {""bsonType"": ""int""},
+            ""total_team_members"": {""bsonType"": ""int""}
+          }
+        },
+        ""budget_responsibility"": {
+          ""bsonType"": ""object"",
+          ""properties"": {
+            ""annual_budget"": {""bsonType"": ""decimal""},
+            ""q1_spend"": {""bsonType"": ""decimal""},
+            ""q2_spend"": {""bsonType"": ""decimal""},
+            ""q3_spend"": {""bsonType"": ""decimal""},
+            ""q4_spend"": {""bsonType"": ""decimal""}
+          }
+        },
+        ""certifications"": {
+          ""bsonType"": ""array"",
+          ""items"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""name"": {""bsonType"": ""string""},
+              ""date_acquired"": {""bsonType"": ""date""},
+              ""expiry_date"": {""bsonType"": ""date""}
+            }
+          }
+        },
+        ""strategic_initiatives"": {
+          ""bsonType"": ""array"",
+          ""items"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""initiative_id"": {""bsonType"": ""string""},
+              ""name"": {""bsonType"": ""string""},
+              ""start_date"": {""bsonType"": ""date""},
+              ""end_date"": {""bsonType"": ""date""},
+              ""budget_allocated"": {""bsonType"": ""decimal""},
+              ""success_rate"": {""bsonType"": ""double"", ""minimum"": 0, ""maximum"": 100}
+            }
+          }
+        }
+      }
+    }
+  }],
+  ""version"": 2
+}
+"

@@ -81,10 +81,10 @@ if __name__=="__main__":
     parser.add_argument("--correct_data_path", type=str, default="data/data.csv", help="Path to save the correct data.")
     args = parser.parse_args()
 
-    if not os.path.exists(args.data_csv_path):
-        raise FileNotFoundError(f"File not found at {args.data_csv_path}")
+    if not os.path.exists(args.data_path):
+        raise FileNotFoundError(f"File not found at {args.data_path}")
     
-    correct_data, result = check_data(args.data_csv_path, args.sample_size)
+    correct_data, result = check_data(args.data_path, args.sample_size)
     logger.info(f"Data correctness: {result*100:.2f}%")
 
     if args.correct_data_path is not None:

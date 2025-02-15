@@ -211,81 +211,6 @@ store_event,"{
   ""version"": 1
 }
 "
-meta_event,"{
-  ""collections"": [
-    {
-      ""name"": ""events"",
-      ""document"": {
-        ""properties"": {
-          ""identifier"": {
-            ""bsonType"": ""object"",
-            ""properties"": {
-              ""camgroup_id"": {
-                ""description"": ""Use this to filter events by group"",
-              },
-              ""task_id"": {
-                ""description"": ""Use this to filter events by tasks"",
-              }
-              ""camera_id"": {
-                ""description"": ""Use this to filter events by camera"",
-              }
-            }
-          },
-          ""response"": {
-            ""bsonType"": ""object"",
-            ""properties"": {
-              ""event"": {
-                ""bsonType"": ""object"",
-                ""properties"": {
-                  ""severity"": {
-                    ""description"": ""Can be Low, Medium, Critical""
-                  },
-                  ""type"": {
-                    ""description"": ""Type of the event. Use this to filter events of person and vehicle""
-                  },
-                  ""blobs"": {
-                    ""bsonType"": ""array"",
-                    ""items"": {
-                      ""bsonType"": ""object"",
-                      ""properties"": {
-                        ""url"": {
-                        },
-                        ""attribs"": {
-                          ""description"": ""Use this for attributes like Gender (Only Male, Female), Upper Clothing, Lower Clothing, Age (Ranges like 20-30, 30-40 and so on) for people and Make (like maruti suzuki, toyota, tata), Color, Type (like Hatchback, sedan, xuv), label (like car, truck, van, three wheeler, motorcycle) for Vehicles""
-                        },
-                        ""label"": {
-                          ""description"": ""Use this label for number plate""
-                        },
-                        ""score"": {
-                          ""description"": ""Use this for confidence for the blob""
-                        },
-                        ""match_id"": {
-                          ""description"": ""Use this match_id for name of the person""
-                        },
-                        ""severity"": {
-                        },
-                        ""subclass"": {
-                          ""description"": ""Use this for subclass for the blob""
-                        }
-                      }
-                    },
-                  },
-                  ""c_timestamp"": {
-                    ""description"": ""Use this for timestamp""
-                  },
-                  ""label"": {
-                    ""description"": ""Use this label for number plate""
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  ],
-  ""version"": 1
-}"
 transit_event,"{
   ""collections"": [{
     ""name"": ""transit_events"",
@@ -531,4 +456,549 @@ management_team,"{
   }],
   ""version"": 2
 }
+"
+vehicle_reg,"{
+  ""collections"": [
+    {
+      ""name"": ""vehicle_registrations"",
+      ""document"": {
+        ""properties"": {
+          ""registration_id"": {
+            ""bsonType"": ""string"",
+            ""description"": ""Unique identifier for the registration""
+          },
+          ""vehicle"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""plate_number"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle license plate number""
+              },
+              ""make"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle manufacturer""
+              },
+              ""model"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle model""
+              },
+              ""year"": {
+                ""bsonType"": ""int"",
+                ""description"": ""Year of manufacture""
+              },
+              ""color"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle color""
+              }
+            }
+          },
+          ""owner"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""name"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Owner's full name""
+              },
+              ""license_number"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Owner's driver license number""
+              },
+              ""address"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Owner's address""
+              }
+            }
+          },
+          ""registration_date"": {
+            ""bsonType"": ""date"",
+            ""description"": ""Date of registration""
+          },
+          ""expiration_date"": {
+            ""bsonType"": ""date"",
+            ""description"": ""Expiration date of registration""
+          },
+          ""fees"": {
+            ""bsonType"": ""decimal"",
+            ""description"": ""Registration fees paid""
+          }
+        }
+      }
+    }
+  ],
+  ""version"": 1
+}
+"
+traffic_data,"{
+  ""collections"": [
+    {
+      ""name"": ""traffic_violations"",
+      ""document"": {
+        ""properties"": {
+          ""violation_id"": {
+            ""bsonType"": ""string"",
+            ""description"": ""Unique identifier for the violation""
+          },
+          ""vehicle"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""plate_number"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle license plate number""
+              },
+              ""make"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle manufacturer""
+              },
+              ""model"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle model""
+              }
+            }
+          },
+          ""violation_type"": {
+            ""bsonType"": ""string"",
+            ""description"": ""Type of traffic violation""
+          },
+          ""location"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""latitude"": {
+                ""bsonType"": ""double"",
+                ""description"": ""Latitude of violation location""
+              },
+              ""longitude"": {
+                ""bsonType"": ""double"",
+                ""description"": ""Longitude of violation location""
+              },
+              ""street_address"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Street address of violation""
+              }
+            }
+          },
+          ""timestamp"": {
+            ""bsonType"": ""date"",
+            ""description"": ""Date and time of the violation""
+          },
+          ""fine_amount"": {
+            ""bsonType"": ""decimal"",
+            ""description"": ""Amount of fine for the violation""
+          },
+          ""officer_id"": {
+            ""bsonType"": ""string"",
+            ""description"": ""ID of the officer who issued the violation""
+          }
+        }
+      }
+    }
+  ],
+  ""version"": 1
+}
+"
+parking_rec,"{
+  ""collections"": [
+    {
+      ""name"": ""parking_records"",
+      ""document"": {
+        ""properties"": {
+          ""ticket_id"": {
+            ""bsonType"": ""string"",
+            ""description"": ""Unique identifier for the parking ticket""
+          },
+          ""vehicle"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""plate_number"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle license plate number""
+              },
+              ""type"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Type of vehicle (car, motorcycle, truck)""
+              }
+            }
+          },
+          ""parking_lot"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""lot_id"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Unique identifier for the parking lot""
+              },
+              ""name"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Name of the parking lot""
+              },
+              ""space_number"": {
+                ""bsonType"": ""int"",
+                ""description"": ""Parking space number""
+              }
+            }
+          },
+          ""entry_time"": {
+            ""bsonType"": ""date"",
+            ""description"": ""Date and time of entry""
+          },
+          ""exit_time"": {
+            ""bsonType"": ""date"",
+            ""description"": ""Date and time of exit""
+          },
+          ""duration"": {
+            ""bsonType"": ""int"",
+            ""description"": ""Duration of parking in minutes""
+          },
+          ""fee"": {
+            ""bsonType"": ""decimal"",
+            ""description"": ""Parking fee""
+          },
+          ""payment_status"": {
+            ""bsonType"": ""string"",
+            ""description"": ""Status of payment (paid, unpaid)""
+          }
+        }
+      }
+    }
+  ],
+  ""version"": 1
+}
+"
+maintenance,"{
+  ""collections"": [
+    {
+      ""name"": ""maintenance_records"",
+      ""document"": {
+        ""properties"": {
+          ""record_id"": {
+            ""bsonType"": ""string"",
+            ""description"": ""Unique identifier for the maintenance record""
+          },
+          ""vehicle"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""vin"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle Identification Number""
+              },
+              ""plate_number"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle license plate number""
+              },
+              ""make"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle manufacturer""
+              },
+              ""model"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle model""
+              },
+              ""year"": {
+                ""bsonType"": ""int"",
+                ""description"": ""Year of manufacture""
+              }
+            }
+          },
+          ""service_type"": {
+            ""bsonType"": ""string"",
+            ""description"": ""Type of maintenance service""
+          },
+          ""service_date"": {
+            ""bsonType"": ""date"",
+            ""description"": ""Date of service""
+          },
+          ""odometer_reading"": {
+            ""bsonType"": ""int"",
+            ""description"": ""Odometer reading at time of service""
+          },
+          ""technician"": {
+            ""bsonType"": ""string"",
+            ""description"": ""Name of technician who performed the service""
+          },
+          ""parts_replaced"": {
+            ""bsonType"": ""array"",
+            ""items"": {
+              ""bsonType"": ""string""
+            },
+            ""description"": ""List of parts replaced during service""
+          },
+          ""cost"": {
+            ""bsonType"": ""decimal"",
+            ""description"": ""Total cost of service""
+          },
+          ""next_service_date"": {
+            ""bsonType"": ""date"",
+            ""description"": ""Recommended date for next service""
+          }
+        }
+      }
+    }
+  ],
+  ""version"": 1
+}
+"
+rental,"{
+  ""collections"": [
+    {
+      ""name"": ""rental_records"",
+      ""document"": {
+        ""properties"": {
+          ""rental_id"": {
+            ""bsonType"": ""string"",
+            ""description"": ""Unique identifier for the rental record""
+          },
+          ""vehicle"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""plate_number"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle license plate number""
+              },
+              ""make"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle manufacturer""
+              },
+              ""model"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle model""
+              },
+              ""year"": {
+                ""bsonType"": ""int"",
+                ""description"": ""Year of manufacture""
+              },
+              ""category"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Rental category (economy, luxury, etc.)""
+              }
+            }
+          },
+          ""customer"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""customer_id"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Unique identifier for the customer""
+              },
+              ""name"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Customer's full name""
+              },
+              ""license_number"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Customer's driver license number""
+              }
+            }
+          },
+          ""pickup_time"": {
+            ""bsonType"": ""date"",
+            ""description"": ""Date and time of vehicle pickup""
+          },
+          ""return_time"": {
+            ""bsonType"": ""date"",
+            ""description"": ""Date and time of vehicle return""
+          },
+          ""duration"": {
+            ""bsonType"": ""int"",
+            ""description"": ""Duration of rental in days""
+          },
+          ""mileage_start"": {
+            ""bsonType"": ""int"",
+            ""description"": ""Odometer reading at start of rental""
+          },
+          ""mileage_end"": {
+            ""bsonType"": ""int"",
+            ""description"": ""Odometer reading at end of rental""
+          },
+          ""total_cost"": {
+            ""bsonType"": ""decimal"",
+            ""description"": ""Total cost of rental""
+          },
+          ""insurance_option"": {
+            ""bsonType"": ""string"",
+            ""description"": ""Type of insurance selected""
+          }
+        }
+      }
+    }
+  ],
+  ""version"": 1
+}
+"
+auction,"{
+  ""collections"": [
+    {
+      ""name"": ""auction_listings"",
+      ""document"": {
+        ""properties"": {
+          ""listing_id"": {
+            ""bsonType"": ""string"",
+            ""description"": ""Unique identifier for the auction listing""
+          },
+          ""vehicle"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""vin"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle Identification Number""
+              },
+              ""plate_number"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle license plate number""
+              },
+              ""make"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle manufacturer""
+              },
+              ""model"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle model""
+              },
+              ""year"": {
+                ""bsonType"": ""int"",
+                ""description"": ""Year of manufacture""
+              },
+              ""mileage"": {
+                ""bsonType"": ""int"",
+                ""description"": ""Current mileage of the vehicle""
+              },
+              ""condition"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Overall condition of the vehicle""
+              }
+            }
+          },
+          ""seller"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""seller_id"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Unique identifier for the seller""
+              },
+              ""name"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Seller's name""
+              }
+            }
+          },
+          ""starting_bid"": {
+            ""bsonType"": ""decimal"",
+            ""description"": ""Starting bid amount""
+          },
+          ""current_bid"": {
+            ""bsonType"": ""decimal"",
+            ""description"": ""Current highest bid amount""
+          },
+          ""reserve_price"": {
+            ""bsonType"": ""decimal"",
+            ""description"": ""Minimum price the seller will accept""
+          },
+          ""auction_start"": {
+            ""bsonType"": ""date"",
+            ""description"": ""Start date and time of the auction""
+          },
+          ""auction_end"": {
+            ""bsonType"": ""date"",
+            ""description"": ""End date and time of the auction""
+          },
+          ""status"": {
+            ""bsonType"": ""string"",
+            ""description"": ""Current status of the auction (active, ended, sold)""
+          },
+          ""bids"": {
+            ""bsonType"": ""array"",
+            ""items"": {
+              ""bsonType"": ""object"",
+              ""properties"": {
+                ""bidder_id"": {
+                  ""bsonType"": ""string"",
+                  ""description"": ""Unique identifier for the bidder""
+                },
+                ""bid_amount"": {
+                  ""bsonType"": ""decimal"",
+                  ""description"": ""Amount of the bid""
+                },
+                ""bid_time"": {
+                  ""bsonType"": ""date"",
+                  ""description"": ""Date and time of the bid""
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  ""version"": 1
+}
+"
+inspection,"{
+  ""collections"": [
+    {
+      ""name"": ""inspection_records"",
+      ""document"": {
+        ""properties"": {
+          ""inspection_id"": {
+            ""bsonType"": ""string"",
+            ""description"": ""Unique identifier for the inspection record""
+          },
+          ""vehicle"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""vin"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle Identification Number""
+              },
+              ""plate_number"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle license plate number""
+              },
+              ""make"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle manufacturer""
+              },
+              ""model"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Vehicle model""
+              },
+              ""year"": {
+                ""bsonType"": ""int"",
+                ""description"": ""Year of manufacture""
+              }
+            }
+          },
+          ""inspection_date"": {
+            ""bsonType"": ""date"",
+            ""description"": ""Date of inspection""
+          },
+          ""inspector"": {
+            ""bsonType"": ""object"",
+            ""properties"": {
+              ""inspector_id"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Unique identifier for the inspector""
+              },
+              ""name"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Inspector's name""
+              },
+              ""certification"": {
+                ""bsonType"": ""string"",
+                ""description"": ""Inspector's certification number""
+              }
+            }
+          },
+          ""odometer_reading"": {
+            ""bsonType"": ""int"",
+            ""description"": ""Odometer reading at time of inspection""
+          },
+          ""inspection_items"": {
+            ""bsonType"": ""array"",
+            ""items"": {
+              ""bsonType"": ""object"",
+              ""properties"": {
+                ""item_name"": {
+                  ""bsonType"": ""string"",
+                  ""description"": ""Name of the inspected item""
+                },
+                ""status"": {
+                  ""bsonType"": ""string"",
+                  ""description"": ""Status of the
 "

@@ -1,51 +1,125 @@
 Model = "gpt-4o-mini"
 
 MONGO_GEN_SYS_PROMPT = """
-You are a highly skilled MongoDB assistant. Based on the input database schema and the difficulty level provided, generate 20 MongoDB queries. Requirements:
+You are a highly skilled MongoDB assistant. Based on the input database schema and difficulty level provided, generate 20 high-quality MongoDB queries.
 
-- The MongoDB queries must be executable and syntactically correct for the provided database schema.
-- Ensure that all queries are compatible with the input schema, including proper field and collection names, data types, and relationships.
-- Tailor the MongoDB queries to match the schema's structure (e.g., embedded documents, references, or data types).
-- Include numeric data retrieval and comparisons in queries where applicable.
-- Provide a diverse set of queries that cover different aspects of the schema and MongoDB operations.
+## General Requirements:
+- The queries must be executable and syntactically correct for the given database schema.
+- Ensure queries align with the schema structure, using correct collection names, field names, relationships, and data types.
+- Include numeric comparisons, date filtering, text search, and array operations where applicable.
+- Provide varied queries covering different MongoDB operations, including simple queries, advanced filtering, and aggregation pipelines.
 
-Difficulty Levels:
+## Difficulty Levels:
+- Level 1-2 (Basic):
+  - Simple find() queries with basic filtering ($eq, $gt, $lt, $in).
+  - Queries using projection ($project).
+  - Sorting and pagination (sort(), limit(), skip()).
+  - Queries filtering multiple fields using $and and $or.
 
--  If the difficulty level is 1 or 2, provide basic queries (e.g., simple find queries or queries involving simple filters).
--  If the difficulty level is 3 or 4, provide intermediate queries (e.g., queries with $group, $match, $sort, $lookup, or aggregation pipelines).
--  If the difficulty level is 5, provide advanced queries involving complex aggregations, nested queries, or multi-stage pipelines.
+- Level 3-4 (Intermediate):
+  - Aggregations using $group, $lookup, $unwind, $match, $sort, $facet.
+  - Queries involving text search ($text with $search).
+  - Queries on nested documents and arrays using $elemMatch.
+  - Using geospatial queries (if applicable).
+  - Index-aware queries optimizing performance.
 
-Output Format:
+- Level 5 (Advanced):
+  - Queries combining multiple conditions inside find(), including nested fields.
+  - Querying deeply nested structures (e.g., filtering "response.event.blobs.label").
+  - Advanced aggregation pipelines with multiple stages.
 
-- Return a list of exactly 20 MongoDB queries.
-- Separate each query with the token <<SEP>>.
-- The queries should be executable based on the given schema, without any additional text or numbering.
+## Output Format:
+- Generate exactly 20 MongoDB queries.
+- Separate each query using the token <<SEP>>.
+- Queries should be directly executable without extra text.
 
-Example Output:
-db.employees.find({ salary: { $gt: 50000 } }); <<SEP>>
-db.employees.aggregate([ { $group: { _id: "$department", avgSalary: { $avg: "$salary" } } }, { $match: { avgSalary: { $gt: 60000 } } } ]); <<SEP>>
-...
+### Example Queries:
+db.events.find({
+  "response.event.type": "vehicle",
+  "response.event.blobs.label": "GJ10SS1010",
+  "response.timestamp": { $gte: ISODate("2023-01-01T00:00:00Z") }
+}); <<SEP>>
+
+db.orders.aggregate([
+  { $match: { "customer_id": ObjectId("60f7e1c7b6e7c8b4f1d0c123") } },
+  { $lookup: { from: "customers", localField: "customer_id", foreignField: "_id", as: "customer_details" } },
+  { $project: { _id: 0, order_total: 1, "customer_details.name": 1 } }
+]); <<SEP>>
+
+db.products.updateMany(
+  { "category": "Electronics", "price": { $lt: 500 } },
+  { $set: { "discount_applied": true } }
+); <<SEP>>
+
+db.users.aggregate([
+  { $group: { _id: "$country", avgAge: { $avg: "$age" } } },
+  { $match: { avgAge: { $gt: 30 } } }
+]); <<SEP>>
+
+db.transactions.find({
+  $or: [
+    { "amount": { $gte: 5000 } },
+    { "status": "pending" }
+  ]
+}).sort({ transaction_date: -1 }).limit(10); <<SEP>>
+
+db.products.find({
+  "reviews.rating": { $gte: 4 },
+  "price": { $gte: 100, $lte: 500 },
+  "brand": { $in: ["Apple", "Samsung"] }
+}); <<SEP>>
 """
 
 MONGO_GEN_USER_PROMPT = """
-Given the following database schema and difficulty level, generate 20 MongoDB queries. Requirements:
+Given the following database schema and difficulty level, generate 20 MongoDB queries.
 
-- The MongoDB queries must be executable and syntactically correct for the provided database schema.
-- Ensure all queries are aligned with the schema's structure, including correct collection and field names, relationships, and data types.
-- Include numeric data retrieval and comparisons in queries where applicable.
-- Provide a diverse set of queries that cover different aspects of the schema and MongoDB operations.
-- Generate exactly 20 MongoDB queries, and separate them using the token <<SEP>>.
+## Requirements:
+- Ensure all queries are syntactically correct and aligned with the schema (field names, data types, collections).
+- Include numeric comparisons, multi-field filtering, aggregations, and text search where applicable.
+- Provide a diverse set of queries covering different MongoDB functionalities.
+- Use multiple conditions inside find() queries where possible.
 
-Schema: {schema} Difficulty Level: {difficulty_level} If the difficulty level is 1 or 2, provide basic queries (e.g., simple find queries or queries involving simple filters).
-If the difficulty level is 3 or 4, provide intermediate queries (e.g., queries with $group, $match, $sort, $lookup, or aggregation pipelines).
-If the difficulty level is 5, provide advanced queries involving complex aggregations, nested queries, or multi-stage pipelines. Expected Output Format:
+### Schema:
+{schema}
 
+### Difficulty Level:
+{difficulty_level}
+
+### Query Complexity Based on Difficulty:
+- Level 1-2: Simple find(), basic filtering, projection, sorting, and pagination.
+- Level 3-4: Aggregations ($group, $match, $lookup, $unwind), array operations, text search.
+- Level 5: Multi-stage pipelines, nested field queries, $expr for cross-field conditions.
+
+## Output Format:
 - 20 executable MongoDB queries separated by <<SEP>>.
-- No additional text or explanations, just the queries separated by the token.
+- No explanations or additional text—just the queries.
 
-Example Output:
-db.orders.find({{ total_amount: {{ $gte: 1000 }} }}).sort({{ order_date: -1 }}).limit(5); <<SEP>>
-db.customers.aggregate([ {{ $lookup: {{ from: 'orders', localField: '_id', foreignField: 'customer_id', as: 'customer_orders' }} }}, {{ $match: {{ 'customer_orders.total_amount': {{ $gt: 5000 }} }} }}, {{ $project: {{ name: 1, total_spent: {{ $sum: '$customer_orders.total_amount' }} }} }} ]); <<SEP>>
+### Example Output:
+db.events.find({{
+  "response.event.type": "vehicle",
+  "response.event.blobs.label": "GJ10SS1010",
+  "location.city": "Mumbai"
+}}); <<SEP>>
+
+db.orders.aggregate([
+  {{ $match: {{ "total_amount": {{ $gt: 1000 }} }} }},
+  {{ $group: {{ _id: "$customer_id", totalSpent: {{ $sum: "$total_amount" }} }} }},
+  {{ $sort: {{ totalSpent: -1 }} }},
+  {{ $limit: {{5 }} }}
+]); <<SEP>>
+
+db.users.find({{
+  $or: [
+    {{ "age": {{ $lt: 18 }} }},
+    {{ "membership_type": "premium" }}
+  ],
+  "last_login": {{ $gte: ISODate("2023-01-01T00:00:00Z") }}
+}}); <<SEP>>
+ - --
+db.employees.find({{
+  "skills": {{ $all: ["Python", "MongoDB"] }},
+  "experience.years": {{ $gte: 5 }}
+}}).sort({{ "salary": -1 }}).limit(10); <<SEP>>
 """
 
 
@@ -55,7 +129,7 @@ You are a highly accurate assistant specializing in transforming database querie
 ### Requirements:  
 - Generate two distinct natural language queries that clearly and concisely describe the original database query.  
 - Both queries must fully preserve the structure and intent, including:  
-  - The type of data being retrieved.  
+  - The data being retrieved.  
   - Any conditions, filters, or constraints applied.  
   - Grouping, aggregations, sorting, or limitations.  
   - Numeric comparisons, date-based operations, or any special conditions.  
