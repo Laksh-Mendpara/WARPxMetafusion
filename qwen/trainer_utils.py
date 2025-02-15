@@ -1,4 +1,4 @@
-from trl import SFTTrainer
+from trl import SFTTrainer, IterativeSFTTrainer
 from transformers import (
     TrainingArguments,
     DataCollatorForSeq2Seq
@@ -38,6 +38,7 @@ def get_trainer(model: Any,
             **merged_training_config
         )
     )
+
     trainer = train_on_responses_only(
         trainer,
         instruction_part = "<|im_start|>user\n",
