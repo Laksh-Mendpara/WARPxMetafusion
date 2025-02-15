@@ -21,7 +21,7 @@ def refine_single_data(database_id: str, schema: str, natural_query: int, mongo_
     response = client.chat.completions.create(
         model=Model,
         messages=[
-            {"role": "developer", "content": DATA_REFINE_SYS_PROMPT},
+            {"role": "system", "content": DATA_REFINE_SYS_PROMPT},
             {
                 "role": "user",
                 "content": DATA_REFINE_USER_PROMPT.format(

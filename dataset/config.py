@@ -260,3 +260,180 @@ Output Format:
 
 Do not include any additional text, explanations, or comments. Only return the dictionary.
 """
+
+# -----------------------------------
+
+SCHEMA_LINKING_SYSTEM = """You are an expert in MongoDB queries. Your task is to generate REJECTED MongoDB queries by introducing a Schema Linking Error.
+
+Schema Linking Errors include:
+- Using incorrect field names that do not exist in the schema.
+- Using a different collection name.
+- Changing the data type of a field (e.g., string instead of int).
+- Keeping the query structure close to the correct version.
+
+Ensure the syntax remains valid while making the schema error.
+
+NOTE - return only the required anwer without any extra things or explaination."""
+
+SCHEMA_LINKING_USER = """### Schema:
+{schema}
+
+### Natural Language Query:
+{nl_query}
+
+### Correct MongoDB Query:
+{correct_query}
+
+### Instructions:
+- Modify the field names to ones that do not exist in the schema.
+- Use a different collection name if possible.
+- Change the data type of a field incorrectly.
+- Maintain valid MongoDB syntax.
+
+Now, generate the incorrect MongoDB query.
+
+NOTE - return only the required anwer without any extra things or explaination."""
+
+LOGICAL_ERROR_SYSTEM = """You are an expert in MongoDB queries. Your task is to generate REJECTED MongoDB queries by introducing a Logical Error.
+
+Logical Errors include:
+- Incorrect usage of comparison operators (e.g., `$gt` vs. `$lt`).
+- Swapping `$and` and `$or`.
+- Contradictory conditions that change the logic of the query.
+
+Ensure the query remains structurally valid while containing logical mistakes.
+
+NOTE - return only the required anwer without any extra things or explaination."""
+
+LOGICAL_ERROR_USER = """### Schema:
+{schema}
+
+### Natural Language Query:
+{nl_query}
+
+### Correct MongoDB Query:
+{correct_query}
+
+### Instructions:
+- Swap logical operators (e.g., `$gt` ↔ `$lt`).
+- Replace `$and` with `$or` incorrectly.
+- Introduce a contradictory condition.
+- Keep the structure similar to the correct query.
+
+Now, generate the incorrect MongoDB query.
+
+NOTE - return only the required anwer without any extra things or explaination."""
+
+INCOMPLETE_QUERY_SYSTEM = """You are an expert in MongoDB queries. Your task is to generate REJECTED MongoDB queries by introducing an Incomplete Query Error.
+
+Incomplete Queries include:
+- Missing essential filter conditions.
+- Omitting important projection fields.
+- Keeping the syntax valid but the query logically incomplete.
+
+NOTE - return only the required anwer without any extra things or explaination."""
+
+INCOMPLETE_QUERY_USER = """### Schema:
+{schema}
+
+### Natural Language Query:
+{nl_query}
+
+### Correct MongoDB Query:
+{correct_query}
+
+### Instructions:
+- Remove a key filter condition.
+- Omit necessary projection fields.
+- Keep the syntax correct but make the query incomplete.
+
+Now, generate the incorrect MongoDB query.
+
+NOTE - return only the required anwer without any extra things or explaination."""
+
+SYNTAX_ERROR_SYSTEM = """You are an expert in MongoDB queries. Your task is to generate REJECTED MongoDB queries by introducing a Syntax Error.
+
+Syntax Errors include:
+- Missing brackets, commas, or incorrect JSON formatting.
+- Invalid usage of MongoDB operators.
+- Any structural mistake that causes the query to be invalid.
+
+Ensure the query is syntactically incorrect while keeping its intent similar to the correct version.
+
+NOTE - return only the required anwer without any extra things or explaination."""
+
+SYNTAX_ERROR_USER = """### Schema:
+{schema}
+
+### Natural Language Query:
+{nl_query}
+
+### Correct MongoDB Query:
+{correct_query}
+
+### Instructions:
+- Introduce missing brackets, commas, or invalid JSON formatting.
+- Misuse an operator in an incorrect way.
+- Ensure the query is not executable in MongoDB.
+
+Now, generate the incorrect MongoDB query.
+
+NOTE - return only the required anwer without any extra things or explaination."""
+
+INEFFICIENT_QUERY_SYSTEM = """You are an expert in MongoDB queries. Your task is to generate REJECTED MongoDB queries by introducing an Inefficiency Error.
+
+Inefficiencies include:
+- Using an inefficient operator instead of a direct match.
+- Adding redundant conditions.
+- Using expensive operations unnecessarily (e.g., regex when an equality match is enough).
+
+Ensure the query is valid but suboptimal in performance.
+
+NOTE - return only the required anwer without any extra things or explaination."""
+
+INEFFICIENT_QUERY_USER = """### Schema:
+{schema}
+
+### Natural Language Query:
+{nl_query}
+
+### Correct MongoDB Query:
+{correct_query}
+
+### Instructions:
+- Use an inefficient operator (e.g., `$regex` for exact match).
+- Add unnecessary `$or` clauses.
+- Introduce redundant conditions that increase query cost.
+
+Now, generate the incorrect MongoDB query.
+
+NOTE - return only the required anwer without any extra things or explaination."""
+
+AMBIGUOUS_QUERY_SYSTEM = """You are an expert in MongoDB queries. Your task is to generate REJECTED MongoDB queries by introducing an Ambiguity Error.
+
+Ambiguous Queries include:
+- Modifying a query so that its meaning is unclear.
+- Removing constraints that change the intent subtly.
+- Making the query interpretable in multiple ways.
+
+Ensure the query is not obviously wrong but is ambiguous in intent.
+
+NOTE - return only the required anwer without any extra things or explaination."""
+
+AMBIGUOUS_QUERY_USER = """### Schema:
+{schema}
+
+### Natural Language Query:
+{nl_query}
+
+### Correct MongoDB Query:
+{correct_query}
+
+### Instructions:
+- Modify the query to be unclear in its intent.
+- Remove constraints that alter the query’s meaning subtly.
+- Ensure the query could be interpreted in different ways.
+
+Now, generate the incorrect MongoDB query.
+
+NOTE - return only the required anwer without any extra things or explaination."""
