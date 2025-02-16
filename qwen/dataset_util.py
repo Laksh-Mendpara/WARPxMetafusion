@@ -16,6 +16,7 @@ def load_data_from_csv(file_path: str) -> pd.DataFrame:
             natural_language_query=x["natural_language_query"]
         ), axis=1
     )
+    df = df.sample(frac=1).reset_index(drop=True)
     return df
 
 def get_data_in_req_format(df: pd.DataFrame) -> Dataset:
