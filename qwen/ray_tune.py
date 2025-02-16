@@ -11,6 +11,8 @@ from ray import(
     tune,
     train
 )
+import subprocess
+import time
 import os
 
 def file_name(config):
@@ -21,7 +23,7 @@ def file_name(config):
 
 def train_model(config):
     
-    train_data_path = "/data/meta/WARPxMetafusion/data/data_v5.csv"
+    train_data_path = "/data/meta/WARPxMetafusion/data/data_v6.csv"
     eval_data_path = "/data/meta/WARPxMetafusion/data/eval_data_v4.csv"
     root_dir_path = "/data/meta/WARPxMetafusion/outputs"
     output_dir_name = file_name(config)
@@ -52,6 +54,9 @@ def train_model(config):
     print(test_metric)
     train.report({"loss": test_metric["eval_loss"]})
 
+    remove_cmd = f"rm -rf {output_path}"
+    subprocess.run(remove_cmd, shell=True)
+
     # Clear GPU cache
     del model
     del tokenizer
@@ -66,13 +71,16 @@ def train_model(config):
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
+    time.sleep(10)
     print("Done training")
 
 
 def main():
 
     config = {
-        "num_train_epochs": tune.choice([1, 2]),
+        ## batch
+        ## gradient step
+        "num_train_epochs": tune.choice([]),
         "per_device_train_batch_size": tune.choice([8, 16, 32, 64]),
         "learning_rate": tune.loguniform(1e-6, 1e-3),
         "weight_decay": tune.loguniform(1e-5, 1e-1),
@@ -103,7 +111,7 @@ def main():
         tune.with_resources(train_model, {'cpu': 64, 'gpu': 1}),
         tune_config=tune.TuneConfig(
             search_alg=algo,
-            num_samples=10,
+            num_samples=30,
             metric="loss",
             mode="min"
         ),

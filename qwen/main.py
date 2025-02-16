@@ -6,7 +6,7 @@ from model_util import (
 )
 
 def main():
-    train_data_path = "data/data_v5.csv"
+    train_data_path = "data/data_v6.csv"
     eval_data_path = "data/eval_data_v4.csv"
 
     config = {
@@ -53,10 +53,9 @@ def main():
     
     # tokenizer.save_pretrained_gguf("qwen0.5_512_fine_model_tuned")
     
-    model.push_to_hub_gguf(
+    model.push_to_hub(
         "Diwanshuydv/qwen2.5-0.5B-coder-Instruct-_NL2MONGODB_fin_tuned", # Change hf to your username!
         tokenizer,
-        quantization_method = ["q4_k_m", "q8_0"],
         token = "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", # Get a token at https://huggingface.co/settings/tokens
     )
 
