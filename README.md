@@ -1,4 +1,4 @@
-# WARPxMetafusion
+# NL2Mongo: Intelligent Query Engine
 
 ## Task
 The primary objective of this project is to convert Natural Language inputs into SQL Queries within a constrained environment.
