@@ -7,7 +7,7 @@ from generate_mongo_query import get_mongo_query
 from generate_text_query import get_text_query
 from tqdm import tqdm
 import argparse
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 import time
 load_dotenv()
@@ -24,7 +24,7 @@ def gen_single_schema_data(
     ) -> List[List[str]]:
     
     # Submit tasks to executor
-    with ProcessPoolExecutor() as executor:
+    with ThreadPoolExecutor() as executor:
         mongo_queries_temp = [executor.submit(get_mongo_query, db[1], i) for i in range(1, 6)]
         
         # Use as_completed to process results as they are completed
@@ -37,7 +37,7 @@ def gen_single_schema_data(
     logger.debug(f"len - {len(mongo_queries_temp)}")
 
     # Submit tasks to executor for text queries
-    with ProcessPoolExecutor() as executor:
+    with ThreadPoolExecutor() as executor:
         text_queires = [executor.submit(get_text_query, db, i) for i in mongo_queries_temp]
         
         # Use as_completed to process results as they are completed
