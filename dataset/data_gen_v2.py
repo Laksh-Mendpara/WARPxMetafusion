@@ -61,6 +61,7 @@ def generate_batch_schema_NL() -> Tuple[str, List[str]]:
 
             response = json.loads(clean_response(response))
             schema, nl_queries = response["schema"], response["nl_queries"]
+            schema = json.dumps(schema)
             logger.debug(f"Generated {len(nl_queries)} queries.")
             return schema, nl_queries
         except Exception as e:
