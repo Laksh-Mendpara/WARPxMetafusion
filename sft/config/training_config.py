@@ -18,7 +18,7 @@ training_argument = {
     "report_to": "none",
     # "report_to": "tensorboard",
     "eval_strategy": "steps",
-    "eval_steps": 10,
+    "eval_steps": 50,
     # "max_steps": 100,
 }
 

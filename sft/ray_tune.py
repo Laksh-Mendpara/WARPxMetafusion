@@ -23,9 +23,9 @@ def file_name(config):
 
 def train_model(config):
     
-    train_data_path = "/data/meta/WARPxMetafusion/data/data_v6.csv"
-    eval_data_path = "/data/meta/WARPxMetafusion/data/eval_data_v4.csv"
-    root_dir_path = "/data/meta/WARPxMetafusion/outputs"
+    train_data_path = "/home/raid3/MetaFusion/data_v2/data_v1.csv"
+    eval_data_path = "/home/raid3/MetaFusion/data_v2/eval_data_v1.csv"
+    root_dir_path = "/home/raid3/MetaFusion/outputs"
     output_dir_name = file_name(config)
     output_path = os.path.join(root_dir_path, output_dir_name)
     config["output_dir"] = output_path
@@ -80,12 +80,12 @@ def main():
     config = {
         ## batch
         ## gradient step
-        "num_train_epochs": tune.choice([]),
-        "per_device_train_batch_size": tune.choice([8, 16, 32, 64]),
-        "learning_rate": tune.loguniform(1e-6, 1e-3),
+        "num_train_epochs": tune.choice([1, 2]),
+        "per_device_train_batch_size": tune.choice([2, 4, 8, 16]),
+        "learning_rate": tune.loguniform(1e-6, 5e-4),
         "weight_decay": tune.loguniform(1e-5, 1e-1),
         "lr_scheduler_type": tune.choice(["cosine_with_restarts", "reduce_lr_on_plateau"]),
-        "lora_alpha": tune.choice([16, 32, 64]),
+        "lora_alpha": tune.choice([16, 64, 256, 512]),
         "warmup_ratio": tune.uniform(0.03, 0.2),
         "lora_dropout": tune.uniform(0, 0.2),
     }
@@ -111,7 +111,7 @@ def main():
         tune.with_resources(train_model, {'cpu': 64, 'gpu': 1}),
         tune_config=tune.TuneConfig(
             search_alg=algo,
-            num_samples=30,
+            num_samples=20,
             metric="loss",
             mode="min"
         ),

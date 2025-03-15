@@ -36,7 +36,7 @@ def convert_to_chat_template(dataset: Dataset, tokenizer: Any):
     def formatting_prompts_func(examples):
         convos = examples["conversations"]
         texts = [tokenizer.apply_chat_template(convo, tokenize = False, add_generation_prompt = False) for convo in convos]
-        return { "text" : texts, }
+        return {"text" : texts}
     dataset = dataset.map(formatting_prompts_func, batched = True,)
     return dataset
 
