@@ -6,8 +6,8 @@ from model_util import (
 )
 
 def main():
-    train_data_path = "../data_v2/data_v1.csv"
-    eval_data_path = "../data_v2/eval_data_v1.csv"
+    train_data_path = "./data_v2/data_v1.csv"
+    eval_data_path = "./data_v2/eval_data_v1.csv"
 
     config = {
         "num_train_epochs": 1,
@@ -18,7 +18,7 @@ def main():
         "lora_alpha": 256,
         "warmup_ratio": 0.199927,
         "lora_dropout": 0.0650687,
-        "output_dir": "outputs"
+        "output_dir": "outputs_try01"
     }
 
     model, tokenizer = load_model(config=config)
@@ -51,7 +51,7 @@ def main():
     print("Training completed...")
 
     model.save_pretrained_gguf(
-        "qwen0.5_sft_finetunned", 
+        "out_try01", 
         tokenizer, 
         quantization_method = ["q4_k_m", "q8_0"]
     )
