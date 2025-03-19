@@ -47,6 +47,7 @@ def main():
     print(tokenizer.decode(trainer.train_dataset[5]["input_ids"]))
     print(tokenizer.decode(trainer.eval_dataset[5]["input_ids"]))
     #####
+    exit()
 
     trainer.train()
 
