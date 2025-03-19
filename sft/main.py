@@ -8,6 +8,8 @@ from model_util import (
 def main():
     train_data_path = "./data_v2/data_v1.csv"
     eval_data_path = "./data_v2/eval_data_v1.csv"
+    train_data_path = "./data_v2/data_v1.csv"
+    eval_data_path = "./data_v2/eval_data_v1.csv"
 
     config = {
         "num_train_epochs": 1,
