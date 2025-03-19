@@ -175,3 +175,6 @@ unsloth_compiled_cache
 llama.cpp
 Diwanshuydv
 Qwen2-0.5B-DPO_ v0.0
+*.out
+outputs_try01
+out_try01
