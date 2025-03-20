@@ -178,3 +178,6 @@ Qwen2-0.5B-DPO_ v0.0
 *.out
 outputs_try01
 out_try01
+result_temp
+_unsloth_sentencepiece_temp
+temp_hf_repo
