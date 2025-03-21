@@ -183,3 +183,4 @@ _unsloth_sentencepiece_temp
 temp_hf_repo
 *.gguf
 *.parquet
+models/pretrained_models
