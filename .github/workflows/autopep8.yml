@@ -1,44 +1,28 @@
-name: Auto Format with autopep8
+name: autopep8
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: pull_request
 
 jobs:
   autopep8:
+    # Only run if the PR is not from a fork.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v2
         with:
-          python-version: '3.x'
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          ref: ${{ github.head_ref }}
 
-      - name: Install autopep8
+      - name: autopep8
+        id: autopep8
+        uses: peter-evans/autopep8@v2
+        with:
+          args: --exit-code --recursive --in-place --aggressive --aggressive .
+
+      - name: Commit autopep8 changes
+        if: steps.autopep8.outputs.exit-code == '2'
         run: |
-          python -m pip install --upgrade pip
-          pip install autopep8
-
-      - name: Run autopep8
-        run: autopep8 --in-place --aggressive --aggressive .
-
-      - name: Commit and push changes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add .
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: auto format Python code with autopep8"
-            # Determine branch name:
-            BRANCH=$(echo "${GITHUB_REF#refs/heads/}")
-            git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:${BRANCH}
-          fi
+          git config --global user.name 'Peter Evans'
+          git config --global user.email 'peter-evans@users.noreply.github.com'
+          git commit -am "Automated autopep8 fixes"
+          git push
