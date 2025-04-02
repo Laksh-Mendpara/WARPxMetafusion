@@ -11,6 +11,8 @@ from tqdm import tqdm
 import argparse
 from os import walk
 import os
+import json
+
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -37,17 +39,18 @@ def eval_single_response(query1: str, query2: str, schema: str) -> int:
         )
 
         result = response.choices[0].message.content.strip()
+        logger.info(f"LLM response: {result}")
+        result = json.loads(result)
+
+        is_correct = result.get("is_correct")
+        reason_for_fail = result.get("reason_for_fail")
         
-        if result in {"0", "1"}:
-            return int(result)
-        else:
-            logger.error(f"Unexpected response: {result}")
-            return 0
+        return int(is_correct), reason_for_fail
     except Exception as e:
         logger.error(f"Error during LLM evaluation: {e}")
-        return 0
+        return 0, "LLM error"
 
-def eval_csv(file_path: str):
+def eval_csv(file_path: str, eval_report_prefix: str = None, eval_dir: str = None) -> float:
     """
     Evaluates responses in a CSV file containing MongoDB queries and schemas.
 
@@ -74,16 +77,28 @@ def eval_csv(file_path: str):
                 logger.error(f"Error processing a query: {e}")
                 results.append(0)  # Default to 0 if error occurs
 
-    accuracy = sum(results) / len(results) if results else 0
+    # accuracy = sum(results) / len(results) if results else 0
+    # return accuracy
+    correct_count = sum(1 for result in results if result[0] == 1)
+    total_count = len(results)
+    accuracy = correct_count / total_count if total_count > 0 else 0
+    logger.info(f"Accuracy: {accuracy:.2%} ({correct_count}/{total_count})")
+    if eval_report_prefix is not None:
+        # report path = eval_report/"input_file_name"+"_eval_report_prefice.csv" 
+        input_file_name = os.path.basename(file_path).split(".")[0]
+        output_file_name = f"{input_file_name}_eval_report_{eval_report_prefix}.csv"
+        output_file_path = os.path.join(eval_dir, output_file_name)
+        df = pd.DataFrame(results, columns=["is_correct", "reason_for_fail"])
+        df.to_csv(output_file_path, index=False)
     return accuracy
 
-def run_all_eval(dir_path: str) -> None:
+def run_all_eval(dir_path: str, eval_report_prefix: str = None, eval_dir: str = None) -> None:
     res = {}
     for (dpath, _, files) in walk(dir_path):
         for fname in files:
             fpath = os.path.join(dpath, fname)
             print (fpath)
-            ac = eval_csv(fpath)
+            ac = eval_csv(fpath, eval_report_prefix, eval_dir)
             res[fpath] = ac
     return res
 
@@ -92,13 +107,21 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', required=True, help="path of response csv directory")
     parser.add_argument('--is_single', default=False, help="path of response csv directory")
+    parser.add_argument('--eval_dir', default=None, help="eval report dir name")
+    parser.add_argument('--eval_report_prefix', default=None, help="prefix of eval report")
+
     args = parser.parse_args()
+
+    ## if one of eval_dir and eval_report_prefix is None give error
+    if (args.eval_dir is None) != (args.eval_report_prefix is None):
+        raise ValueError("give both value of eval_dir and prefix")
+
     # csv_path = "output/microsoft_phi-2_q8_output.csv"
     if not args.is_single:
-        result = run_all_eval(args.path)
+        result = run_all_eval(args.path, args.eval_report_prefix, args.eval_dir)
         # logger.info(f"Accuracy: {result}")
         for (k, v) in result.items():
             print (f"{k}  -- {v}")
     else:
-        acc = eval_csv(args.path)
+        acc = eval_csv(args.path, args.eval_report_prefix, args.eval_dir)
         print (f"Accuracy: {acc}")
