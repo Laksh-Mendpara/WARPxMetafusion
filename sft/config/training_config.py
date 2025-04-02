@@ -14,7 +14,7 @@ training_argument = {
     "weight_decay": 0.01,
     "lr_scheduler_type": "linear",
     "seed": 3407,
-    "output_dir": "/home/raid3/MetaFusion/WARPxMetafusion/outputs",
+    "output_dir": "/home/raid/metafusion/WARPxMetafusion/outputs",
     "report_to": "none",
     # "report_to": "tensorboard",
     "eval_strategy": "steps",

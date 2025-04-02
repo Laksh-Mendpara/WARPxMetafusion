@@ -16,16 +16,19 @@ import time
 import os
 
 def file_name(config):
-    fname = "model_"
+    fname = ""
     for key, val in config.items():
+        if key=="model_name":
+            continue
         fname += "{}_{}_".format(key, val) 
     return fname
 
 def train_model(config):
-    
-    train_data_path = "/home/raid3/MetaFusion/data_v2/data_v1.csv"
-    eval_data_path = "/home/raid3/MetaFusion/data_v2/eval_data_v1.csv"
-    root_dir_path = "/home/raid3/MetaFusion/outputs"
+
+    train_data_path = "/home/raid/metafusion/WARPxMetafusion/data_v2/data_v1.csv"
+    eval_data_path = "/home/raid/metafusion/WARPxMetafusion/data_v2/eval_data_v1.csv"
+    root_dir_path = "/home/raid/metafusion/WARPxMetafusion/outputs"
+
     output_dir_name = file_name(config)
     output_path = os.path.join(root_dir_path, output_dir_name)
     config["output_dir"] = output_path
@@ -80,6 +83,7 @@ def main():
     config = {
         ## batch
         ## gradient step
+        "model_name": "unsloth/Qwen2.5-Coder-1.5B-Instruct",
         "num_train_epochs": tune.choice([1, 2]),
         "per_device_train_batch_size": tune.choice([2, 4, 8, 16]),
         "learning_rate": tune.loguniform(1e-6, 5e-4),
