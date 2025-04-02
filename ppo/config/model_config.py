@@ -1,5 +1,5 @@
 fast_model_config = {
-    "model_name": "unsloth/Qwen2.5-Coder-1.5B-Instruct",
+    "model_name": "unsloth/Qwen2.5-Coder-0.5B-Instruct",
     "max_seq_length": 2048,
     "dtype": None,
     "load_in_4bit": False

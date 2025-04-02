@@ -2,6 +2,9 @@ from verl.trainer.ppo.ray_trainer import RayPPOTrainer
 import os
 import ray
 import hydra
+from model_util import load_model
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # Assuming you have one GPU
 
 
 def get_custom_reward_fn(config):
@@ -41,21 +44,20 @@ def run_ppo(config) -> None:
     # TODO(linjunrong.ocss884): this ENV is left for resolving SGLang conflict with ray devices
     # isolation, will solve in the future
     os.environ["ENSURE_CUDA_VISIBLE_DEVICES"] = os.environ.get('CUDA_VISIBLE_DEVICES', '')
-    if not ray.is_initialized():
-        # this is for local ray cluster
-        ray.init(runtime_env={
-            'env_vars': {
-                'TOKENIZERS_PARALLELISM': 'true',
-                'NCCL_DEBUG': 'WARN',
-                'VLLM_LOGGING_LEVEL': 'WARN'
-            }
-        })
+    # if not ray.is_initialized():
+    ray.init(num_gpus=1, runtime_env={
+        'env_vars': {
+            'TOKENIZERS_PARALLELISM': 'true',
+            'NCCL_DEBUG': 'WARN',
+            'VLLM_LOGGING_LEVEL': 'WARN'
+        }
+    })
 
     runner = TaskRunner.remote()
     ray.get(runner.run.remote(config))
 
 
-@ray.remote(num_cpus=1)  # please make sure main_task is not scheduled on head
+@ray.remote(num_cpus=4, num_gpus=1)  # please make sure main_task is not scheduled on head
 class TaskRunner:
 
     def run(self, config):
@@ -70,11 +72,11 @@ class TaskRunner:
         local_path = copy_to_local(config.actor_rollout_ref.model.path)
 
         # instantiate tokenizer
-        from verl.utils import hf_tokenizer, hf_processor
-        tokenizer = hf_tokenizer(local_path)
-        processor = hf_processor(local_path, use_fast=True)  # used for multimodal LLM, could be none
+        # from verl.utils import hf_tokenizer, hf_processor
+        # tokenizer = hf_tokenizer(local_path)
+        # processor = hf_processor(local_path, use_fast=True)  # used for multimodal LLM, could be none
 
-        # processor, tokenizer = load_model()
+        processor, tokenizer = load_model()
 
         # define worker classes
         if config.actor_rollout_ref.actor.strategy == 'fsdp':
