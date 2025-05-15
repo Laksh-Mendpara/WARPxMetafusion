@@ -151,7 +151,8 @@ def convert_modified_to_actual_code_string(
     filter_str = json.dumps(dot_filter, separators=(",", ":"))
 
     # 2) only include projection if non-empty
-    projection = opts.get("projection", {})
+    projection = opts.get("projection", None)
+
     parts = [f"db.{collection_name}.find({filter_str}"
              + (f", {json.dumps(projection, separators=(',', ':'))}" if projection else "")
              + ")"]
@@ -183,10 +184,10 @@ def convert_actual_code_to_modified_dict(actual_code: str, out2in: dict) -> dict
         # extract find(filter, projection)
         args = node.body.args
         filter_dict = ast.literal_eval(args[0])
-        projection = ast.literal_eval(args[1]) if len(args) > 1 else {}
+        projection = ast.literal_eval(args[1]) if len(args) > 1 else None
 
         # extract chained methods: sort, skip, limit
-        options = {"projection": projection}
+        options = {"projection": projection} if projection else {}
         current = node.body
         while isinstance(current, ast.Call):
             func = current.func
