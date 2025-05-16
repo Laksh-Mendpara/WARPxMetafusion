@@ -13,7 +13,7 @@ def parse_mongosh_query(query_str: str) -> tuple[str, str, Dict[str, Any]]:
     """
     # Enhanced regex to handle more complex query formats
     query_pattern = re.match(
-        r"db\.(\w+)\.(find|aggregate|update|deleteMany|deleteOne|insertOne|insertMany)\s*\((.*)\)(?:\.sort\((.*)\))?", 
+        r"db\.(\w+)\.(find|aggregate|update|deleteMany|deleteOne|insertOne|insertMany|countDocuments)\s*\((.*)\)(?:\.sort\((.*)\))?", 
         query_str.strip(), 
         re.DOTALL
     )
@@ -146,6 +146,9 @@ def execute_pymongo_query(
             filter_query = query_details['params'][0]
             update_query = query_details['params'][1]
             return collection.update_many(filter_query, update_query).modified_count
+        
+        elif operation == "countDocuments":
+            return collection.count_documents(query_details['params'])
         
         else:
             raise ValueError(f"Unsupported operation: {operation}")
