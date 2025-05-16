@@ -4,7 +4,7 @@ import pytest
 from loguru import logger
 from typing import Dict, Any
 
-from utils import (
+from .utils import (
     build_schema_maps,
     modified_to_actual_query,
     actual_to_modified_query,
