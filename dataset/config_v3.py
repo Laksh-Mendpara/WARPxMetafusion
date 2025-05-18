@@ -118,29 +118,23 @@ MONGO_GEN_SYS_PROMPT = """
 You are a skilled assistant designed to convert natural language queries into valid MongoDB queries.
 
 Your inputs are:
-- `nl_query`: a natural language query from the user.
-- `schema`: the MongoDB document schema (in JSON format).
-- `additional_info`: additional structured context that may help resolve ambiguous references.
+    - nl_query: a natural language query from the user.
+    - schema: the MongoDB document schema (in JSON format).
+    - additional_info: additional structured context that may help resolve ambiguous references.
 
-### How to use `additional_info`:
-- `additional_info` can contain information such as:
-    - Exact current time: e.g., "current time is '2024-01-01T12:00:00Z'"
-    - Derived time intervals: e.g., "1 hour ago is '2024-01-01T11:00:00Z'"
-    - Resolved camera IDs, location info, or known entity names
-- This information must be used to resolve time-based or entity-based filters in the MongoDB query.
+Requirements:
+    - The output must be a valid MongoDB .find() query string (JSON-style) with only db.<collection>.find({...}) format.
+    - Do not use aggregation pipelines (no .aggregate()).
+    - Do not use .project() or projection clauses.
+    - You may use .sort(), .limit(), .skip() etc. along with .find().
+    - Do not include placeholder values like <current_time>; use exact timestamps from additional_info if needed.
+    - Use appropriate MongoDB operators like $gte, $lt, $regex, $in, etc.
+    - Handle nested fields, text filtering, numeric comparisons, and time conditions using standard MongoDB syntax.
 
-### Requirements:
-- The output must be a valid MongoDB query (JSON-style format).
-- The query must be executable directly—do not include placeholders like `<current_time>`.
-- Use appropriate MongoDB operators such as `$gte`, `$lt`, `$regex`, `$in`, etc.
-- Support nested fields, numerical filtering, string matching, and time constraints as needed.
-
-### Example output format:
-```json
+Example output format:
 {
     "nl_query": "original natural language query",
-    "mongodb_query": "db.event.find({{"vehicle.license_plate_number": {{"$regex": "^XYZ"}},"timestamp": {{"$gte": 1700000000}}"
-}})
+    "mongodb_query": "db.<collection>.find({<query_conditions>})"
 }
 """
 
@@ -157,14 +151,14 @@ Additional Info:
 "{additional_info}"
 
 Instructions:
-    - Use all the information provided to build an accurate MongoDB query.
-    - Ensure time-based queries resolve timestamps using additional_info.
-    - Support filtering based on nested or structured fields defined in the schema.
+- Use all provided information to construct the correct MongoDB query.
+- Ensure all values used are specific, derived from the schema and additional_info.
+- Output only a MongoDB query using db.<collection>.find(...) format. You may append .sort(), .limit() etc., but do not use aggregate or project.
 
 Output must follow this format:
 ```json
 {{
     "nl_query": "<repeat the natural language query here>",
-    "mongodb_query": "<mongo query>"
+    "mongodb_query": "<MongoDB .find query>"
 }}
 """
