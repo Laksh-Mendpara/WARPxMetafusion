@@ -4,6 +4,46 @@ import json
 import re
 
 
+def normalize_number(match):
+        num_str = match.group(0)
+        if '.' in num_str:
+            # Normalize float by removing trailing zeros and decimal point if needed
+            return str(float(num_str))
+        return num_str  # Leave integers as is
+
+
+def clean_query(query: str) -> str:
+    """
+    Cleans the MongoDB query string by removing unnecessary whitespace and formatting.
+
+    to do:
+    - replace ' with "
+    - remove all spaces
+    - strip the query
+    - convert '''<query>''' to <query>
+    - remove \n
+    - remove empty brackets {}
+    """
+    # replace \' with "
+    query = query.replace("'", "\"")
+    # Remove all spaces
+    query = query.replace(" ", "")
+    # Strip the query
+    query = query.strip()
+    # Convert '''<query>''' to <query>
+    if query.startswith("'''") and query.endswith("'''"):
+        query = query[3:-3]
+    # Remove \n
+    query = query.replace("\n", "")
+    # Remove empty brackets {}
+    query = query.replace("{}", "")
+    # Replace .toArray() with ""
+    query = query.replace(".toArray()", "")
+    # Normalize the query string
+    query = re.sub(r'(?<!["\w])(-?\d+\.\d+)(?!["\w])', normalize_number, query)
+    return query
+
+
 def extract_field_paths(properties: Dict[str, Any], prefix: str = "") -> Dict[str, str]:
     """
     Recursively extract all leaf property names to full dot-paths
