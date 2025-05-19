@@ -5,11 +5,11 @@ from loguru import logger
 from data_v3.data_utils.utils import (
     modify_dataframe as modify_dataframe_v3
 )
-from config.prompt_config import (
+from .config.prompt_config import (
     MODEL_PROMPT, 
     SYSTEM_PROMPT
 )
-from config.prompt_config_v3 import (
+from .config.prompt_config_v3 import (
     MODEL_PROMPT_V3,
     SYSTEM_PROMPT_V3
 )
@@ -47,8 +47,8 @@ def load_data_from_csv_v3(file_path: str) -> pd.DataFrame:
             additional_info=x["additional_info"]
         ), axis=1
     )
-    df = df.sample(frac=1).reset_index(drop=True)
-    return df
+    df_modified = df_modified.sample(frac=1).reset_index(drop=True)
+    return df_modified
 
 def get_data_in_req_format(df: pd.DataFrame) -> Dataset:
     conversation = df.apply(lambda row: [
