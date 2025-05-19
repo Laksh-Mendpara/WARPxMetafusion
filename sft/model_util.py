@@ -1,5 +1,5 @@
 from unsloth import FastLanguageModel
-from config.model_config import(
+from .config.model_config import(
     fast_model_config,
     peft_model_config
 )

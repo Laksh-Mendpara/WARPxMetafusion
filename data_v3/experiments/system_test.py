@@ -73,39 +73,33 @@ def test_single_row(mongo_query: str, schema: Dict[str, Any]):
         converted_query = clean_query2(converted_query)
         # assert converted_query == mongo_query, f"Converted query does not match the original query.\nOriginal: {mongo_query}\nConverted: {converted_query}"
         if converted_query != mongo_query:
-            logger.error(f"Converted query does not match the original query.\nOriginal: {mongo_query}\nConverted: {converted_query}")
-            # check the difference between the two queries
-            original_set = set(mongo_query.split())
-            converted_set = set(converted_query.split())
-            diff = original_set.symmetric_difference(converted_set)
-            logger.error(f"Difference: {diff}")
-            raise AssertionError(f"Converted query does not match the original query.\nOriginal: {mongo_query}\nConverted: {converted_query}")
-
-
-        return modified_dict, converted_query
+            logger.error(f"Converted query does not match the original query.\nOriginal: {mongo_query}\nModified: {modified_dict}\n Reconstructed: {converted_query}")
+            # raise AssertionError(f"Converted query does not match the original query.\nOriginal: {mongo_query}\nConverted: {converted_query}")
+            return None, None, None, None
+        return mongo_query, modified_dict, in2out, out2in
     except ValueError as e:
         logger.error(f"ValueError: {e}")
         logger.debug(f"Mongo query: {mongo_query}")
-        return None, None
+        return None, None, None, None
     except KeyError as e:
         logger.error(f"KeyError: {e}")
         logger.debug(f"Mongo query: {mongo_query}")
-        return None, None
+        return None, None, None, None
         
 
 def test_all_rows(mongo_queries: List[str], schemas: Dict[str, Any]):
+    final_data = []
     for i, (mongo_query, schema) in tqdm(enumerate(zip(mongo_queries, schemas)), desc="Testing all rows", total=len(mongo_queries)):
-        try:
-            test_single_row(mongo_query, schema)
-        except AssertionError as e:
-            logger.error(f"Test failed for query {i}: {e}")
-            raise
-        except Exception as e:
-            logger.error(f"Unexpected error for query {i}: {e}")
-            raise
+        mongo_query, converted_query, in2out, out2in = test_single_row(mongo_query, schema)
+        if mongo_query is not None and converted_query is not None and in2out is not None and out2in is not None:
+            final_data.append({
+                "mongo_query": mongo_query,
+                "converted_query": converted_query
+            })
+    return final_data
 
 if __name__ == "__main__":
-    csv_path = "./data_v3/data_v1.csv"
+    csv_path = "./data_v3/data_v2.csv"
     df = pd.read_csv(csv_path)
     mongo_queries = df["mongo_query"].tolist()
     schemas = df["schema"].apply(eval).tolist()  # Assuming schema is stored as a string representation of a dictionary
@@ -119,14 +113,17 @@ if __name__ == "__main__":
     schemas = [schema for i, schema in enumerate(schemas) if i not in indices_to_remove]
 
     # Test all rows
-    # test_all_rows(mongo_queries, schemas)
+    final_data = test_all_rows(mongo_queries, schemas)
+    logger.info(f"Final data lenght: {len(final_data)}")
     # Test a single 0th row
     # logger.info("Testing single row")
-    for i in range(1500):
-        modified_query, converted_query =  test_single_row(mongo_queries[i], schemas[i])
-        print(i)
-        # logger.info(f"Mongo query: {mongo_queries[i]}")
-        # logger.info(f"Modified query: {modified_query}")
-        # logger.info(f"Reconstructed query: {converted_query}")
-        # logger.info("--------------------------------------------------------------")
-        # logger.info(f"Schema: {schemas[i]}")
+    # for i in range(15):
+    #     modified_query, modified_query, in2out, out2in =  test_single_row(mongo_queries[i], schemas[i])
+    #     print(i)
+    #     logger.info(f"Mongo query: {mongo_queries[i]}")
+    #     logger.info(f"Modified query: {modified_query}")
+    #     logger.info(f"Reconstructed query: {modified_query}")
+    #     logger.info(f"in2out: {in2out}")
+    #     logger.info(f"out2in: {out2in}")
+    #     logger.info(f"Schema: {schemas[i]}")
+    #     logger.info("--------------------------------------------------------------")

@@ -3,7 +3,7 @@ from transformers import (
     TrainingArguments,
     DataCollatorForSeq2Seq
 )
-from config.training_config import (
+from .config.training_config import (
     sft_argument,
     training_argument
 )

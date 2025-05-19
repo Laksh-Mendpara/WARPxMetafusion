@@ -8,6 +8,8 @@ def extract_field_paths(properties: Dict[str, Any], prefix: str = "") -> Dict[st
     """
     Recursively extract all leaf property names to full dot-paths
     from a Mongo JSON Schema 'properties' dict.
+    Handles nested objects and arrays of objects.
+    Returns {field_name: full_path}
     """
     paths: Dict[str, str] = {}
     for key, val in properties.items():
@@ -15,6 +17,9 @@ def extract_field_paths(properties: Dict[str, Any], prefix: str = "") -> Dict[st
         # If nested object, recurse
         if val.get("bsonType") == "object" and "properties" in val:
             paths.update(extract_field_paths(val["properties"], current + "."))
+        # If array of objects, recurse into items
+        elif val.get("bsonType") == "array" and "items" in val and val["items"].get("bsonType") == "object" and "properties" in val["items"]:
+            paths.update(extract_field_paths(val["items"]["properties"], current + "."))
         else:
             paths[key] = current
     return paths
@@ -23,8 +28,9 @@ def extract_field_paths(properties: Dict[str, Any], prefix: str = "") -> Dict[st
 def build_schema_maps(schema: Dict[str, Any]) -> Tuple[Dict[str, str], Dict[str, str]]:
     """
     From a full JSON Schema, return two maps:
-      - input_to_output: flat key -> nested field path
-      - output_to_input: nested field path -> flat key
+      - input_to_output: field_name -> nested field path
+      - output_to_input: nested field path -> field_name
+    Handles both nested and flat schemas correctly.
     """
     props = schema["collections"][0]["document"]["properties"]
     input_to_output = extract_field_paths(props)
@@ -73,25 +79,25 @@ def nested_to_dot(d: Dict[str, Any], prefix: str = "") -> Dict[str, Any]:
 def modified_to_actual_query(modified: Dict[str, Any],
                             input_to_output: Dict[str, str]) -> Dict[str, Any]:
     """
-    Convert a flat filter dict (flat_key -> value/operator) into
+    Convert a flat filter dict (field_name -> value/operator) into
     a nested Mongo query dict according to the schema map.
     If a key is not in the schema, treat it as dot notation.
     """
     query: Dict[str, Any] = {}
-    for flat_key, val in modified.items():
-        if flat_key in input_to_output:
-            path = input_to_output[flat_key].split('.')
+    for field_name, val in modified.items():
+        if field_name in input_to_output:
+            path = input_to_output[field_name].split('.')
             set_nested(query, path, val)
         else:
             # fallback: treat as dot notation
-            set_nested(query, flat_key.split('.'), val)
+            set_nested(query, field_name.split('.'), val)
     return query
 
 
 def actual_to_modified_query(actual: Dict[str, Any],
                              output_to_input: Dict[str, str]) -> Dict[str, Any]:
     """
-    Flatten a nested Mongo query dict back into flat_key -> value/operator.
+    Flatten a nested Mongo query dict back into field_name -> value/operator.
     Operator-dicts (keys starting with $) are treated as leaves.
     If a path is not in output_to_input mapping, preserve it as-is.
     """
@@ -103,7 +109,6 @@ def actual_to_modified_query(actual: Dict[str, Any],
             if prefix in output_to_input:
                 flat[output_to_input[prefix]] = d
             else:
-                # If not in mapping, preserve the original dot notation path
                 flat[prefix] = d
             return
             
@@ -112,7 +117,6 @@ def actual_to_modified_query(actual: Dict[str, Any],
             if prefix in output_to_input:
                 flat[output_to_input[prefix]] = d
             else:
-                # If not in mapping, preserve the original dot notation path
                 flat[prefix] = d
             return
             
