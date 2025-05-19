@@ -2,7 +2,7 @@ import pandas as pd
 from typing_extensions import Any, List, Dict
 from loguru import logger
 from tqdm import tqdm
-from .helper import (
+from .base_conversion_utils import (
     clean_query,
     build_schema_maps,
     convert_actual_code_to_modified_dict,
@@ -41,16 +41,18 @@ def modify_single_row_base_form(mongo_query: str, schema: Dict[str, Any]) -> str
         return None, None, None, None, None, None
 
 
-def modify_all_rows_base_from(mongo_queries: List[str], schemas: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def modify_all_rows_base_from(mongo_queries: List[str], schemas: List[Dict[str, Any]], nl_queries: List[str], additional_infos: List[str]) -> List[Dict[str, Any]]:
     """
     Modifies all MongoDB queries based on the provided schemas.
     """
     modified_queries = []
-    for _, (mongo_query, schema) in tqdm(enumerate(zip(mongo_queries, schemas)), total=len(mongo_queries), desc="Modifying Queries"):
+    for i, (mongo_query, schema) in tqdm(enumerate(zip(mongo_queries, schemas)), total=len(mongo_queries), desc="Modifying Queries"):
         mongo_query, modified_query, collection_name, in2out, out2in, schema = modify_single_row_base_form(mongo_query, schema)
         if modified_query is not None:
             modified_queries.append({
                 "mongo_query": mongo_query,
+                "natural_language_query": nl_queries[i],
+                "additional_info": additional_infos[i],
                 "modified_query": modified_query,
                 "collection_name": collection_name,
                 "in2out": in2out,
@@ -127,7 +129,9 @@ def modify_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     logger.debug(f"input DataFrame length: {len(df)}")
     mongo_queries = df["mongo_query"].tolist()
     schemas = df["schema"].apply(eval).tolist()
-    modified_queries = modify_all_rows_base_from(mongo_queries, schemas)
+    nl_queries = df["natural_language_query"].tolist()
+    additional_infos = df["additional_info"].tolist()
+    modified_queries = modify_all_rows_base_from(mongo_queries, schemas, nl_queries, additional_infos)
     logger.debug(f"Modified queries length: {len(modified_queries)}")
     line_based_queries = modify_all_line_based_parsing(modified_queries)
     logger.debug(f"Line-based queries length: {len(line_based_queries)}")
@@ -170,7 +174,10 @@ if __name__ == "__main__":
     logger.debug(f"Final data type: {final_data[0]}\n\n")
 
     for i, (query_data) in enumerate(final_data):
+        logger.debug(f"Modified schema {i}: {query_data['line_based_schema']}")
         logger.debug(f"Line-based query {i}: {query_data['line_based_query']}")
-        logger.debug(f"Modified schema {i}: {query_data['line_based_schema']}\n\n\n\n")
+        logger.debug(f"NL query {i}: {query_data['natural_language_query']}")
+        logger.debug(f"Additional info {i}: {query_data['additional_info']}")
+        print('\n\n\n\n')
         if i > 3:
             break
