@@ -1,4 +1,4 @@
-from config import (
+from .config import (
     CHECK_SYS_PROMPT,
     CHECK_USER_PROMPT
 )
@@ -39,7 +39,7 @@ def eval_single_response(query1: str, query2: str, schema: str) -> int:
         )
 
         result = response.choices[0].message.content.strip()
-        logger.info(f"LLM response: {result}")
+        # logger.info(f"LLM response: {result}")
         result = json.loads(result)
 
         is_correct = result.get("is_correct")
@@ -50,7 +50,7 @@ def eval_single_response(query1: str, query2: str, schema: str) -> int:
         logger.error(f"Error during LLM evaluation: {e}")
         return 0, "LLM error"
 
-def eval_csv(file_path: str, eval_report_prefix: str = None, eval_dir: str = None) -> float:
+def eval_csv(file_path: str, eval_report_prefix: str = None, eval_dir: str = None, output_path: str = None) -> float:
     """
     Evaluates responses in a CSV file containing MongoDB queries and schemas.
 
@@ -83,6 +83,9 @@ def eval_csv(file_path: str, eval_report_prefix: str = None, eval_dir: str = Non
     total_count = len(results)
     accuracy = correct_count / total_count if total_count > 0 else 0
     logger.info(f"Accuracy: {accuracy:.2%} ({correct_count}/{total_count})")
+    if output_path is not None:
+        logger.info(f"Saving results to {output_path}")
+        df.to_csv(output_path, index=False)
     if eval_report_prefix is not None:
         # report path = eval_report/"input_file_name"+"_eval_report_prefice.csv" 
         input_file_name = os.path.basename(file_path).split(".")[0]
@@ -107,12 +110,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', required=True, help="path of response csv directory")
     parser.add_argument('--is_single', default=False, help="path of response csv directory")
+    parser.add_argument('--output_path', default=None, help="output path of response csv directory")
     parser.add_argument('--eval_dir', default=None, help="eval report dir name")
     parser.add_argument('--eval_report_prefix', default=None, help="prefix of eval report")
 
     args = parser.parse_args()
 
     ## if one of eval_dir and eval_report_prefix is None give error
+    if (args.eval_dir is None) != (args.eval_report_prefix is None):
+        raise ValueError("give both value of eval_dir and prefix")
+    
     if (args.eval_dir is None) != (args.eval_report_prefix is None):
         raise ValueError("give both value of eval_dir and prefix")
 
@@ -123,5 +130,5 @@ if __name__ == "__main__":
         for (k, v) in result.items():
             print (f"{k}  -- {v}")
     else:
-        acc = eval_csv(args.path, args.eval_report_prefix, args.eval_dir)
+        acc = eval_csv(args.path, args.eval_report_prefix, args.eval_dir, args.output_path)
         print (f"Accuracy: {acc}")
