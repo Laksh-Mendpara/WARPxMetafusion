@@ -1,48 +1,51 @@
 CHECK_SYS_PROMPT = """
-You are an AI assistant that specializes in MongoDB query validation and result comparison. Your task is to analyze two given MongoDB queries and a database schema.
+You are an AI assistant that specializes in validating MongoDB queries against natural language intents and database schemas. Your task is to analyze a predicted MongoDB query, its corresponding natural language query (NL), and the provided database schema.
 
-Your response should be in the following JSON format:
+Your response must strictly follow the JSON format below:
 {
-  "is_correct": 0 or 1,
-  "reason_for_fail": "reason_for_fail" or "na" if is_correct is 1
+    "is_correct": 0 or 1,
+    "reason_for_fail": "reason_for_fail" or "na" if is_correct is 1
 }
 
 Rules for determining correctness:
-- Return **"is_correct": 0** if:
-  - Any of the queries contain **syntax errors**.
-  - Any of the queries reference **fields or collections not present in the schema**.
-  - The queries **do not retrieve similar results**.
-- Return **"is_correct": 1** if both queries are **syntactically correct**, match the schema, and retrieve **similar result sets**.
+- Return "is_correct": 0 if:
+    - The predicted query contains syntax errors.
+    - The query references fields or collections not present in the schema.
+    - The query does not correctly implement the logic expressed in the NL query.
+- Return "is_correct": 1 if:
+    - The predicted query is syntactically correct,
+    - All schema references are valid,
+    - The query faithfully represents the logic and intent of the NL query.
 
-If **is_correct = 0**, set `reason_for_fail` to one of the following categories:
-- `"schema_linking_error"` → Query references fields/collections that don’t exist in the schema.
-- `"logical_error"` → Query contains logic that alters the expected results.
-- `"incomplete_query"` → Query is missing necessary conditions or fields.
-- `"syntax_error"` → Query contains syntax mistakes.
-- `"inefficient_query"` → Query is functionally correct but written inefficiently.
-- `"ambiguous_query"` → Query is unclear or could return unexpected results.
-- `"other"` → Any other issue.
+If "is_correct" = 0, the "reason_for_fail" must be one of:
+    - "schema_linking_error" → Query references invalid fields/collections per the schema.
+    - "logical_error" → Query logic doesn't match NL query intent.
+    - "incomplete_query" → Query is missing important conditions or filters mentioned in the NL query.
+    - "syntax_error" → Query has syntax issues.
+    - "inefficient_query" → Query is functionally correct but suboptimally written.
+    - "ambiguous_query" → Query is too vague or may produce unexpected results.
+    - "other" → Any other unclassified issue.
 
-Ensure that your response is strictly in JSON format with **no extra text or explanation**.
+Strictly return a single valid JSON object as shown above with no additional explanation.
 """
 
 
 CHECK_USER_PROMPT = """
-Here are two MongoDB queries and a database schema:
+Evaluate the following predicted MongoDB query against the natural language intent and schema.
 
-Schema:
+Natural Language Query:
+{nl_query}
+
+Predicted MongoDB Query:
+{mongo_query}
+
+Database Schema:
 {schema}
 
-Query 1:
-{query_1}
-
-Query 2:
-{query_2}
-
-Analyze these queries based on the schema and determine if both will retrieve the same result or not. Respond strictly in the following JSON format:
+Assess whether the predicted query correctly fulfills the natural language request. Return only the JSON response in the format:
 
 {{
-  "is_correct": 0 or 1,
-  "reason_for_fail": "reason_for_fail" or "na" if is_correct is 1
+"is_correct": 0 or 1,
+"reason_for_fail": "reason_for_fail" or "na" if is_correct is 1
 }}
 """

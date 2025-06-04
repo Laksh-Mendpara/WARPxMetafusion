@@ -1,7 +1,3 @@
-from .config import (
-    CHECK_SYS_PROMPT,
-    CHECK_USER_PROMPT
-)
 from openai import OpenAI
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dotenv import load_dotenv
@@ -12,12 +8,16 @@ import argparse
 from os import walk
 import os
 import json
-
+from .config import (
+    CHECK_SYS_PROMPT,
+    CHECK_USER_PROMPT
+)
+from data_v3.data_utils.base_conversion_utils import clean_query
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def eval_single_response(query1: str, query2: str, schema: str) -> int:
+def eval_single_response(nl_query: str, acutal_mongo_query: str, schema: str, predicted_mongo_query: str) -> int:
     """
     Evaluates two MongoDB queries against a given database schema
     and determines if they will return the same result.
@@ -27,12 +27,20 @@ def eval_single_response(query1: str, query2: str, schema: str) -> int:
     - 0 if either query is incorrect or both return no result.
     """
     try:
+        if clean_query(acutal_mongo_query) == clean_query(predicted_mongo_query):
+            return 1, "na"
+    except Exception as e:
+        logger.error(f"Error cleaning queries, going for judge llm: {e}")
+        pass
+    try:
         response = client.chat.completions.create(
             model="gpt-4-turbo",
             messages=[
                 {"role": "system", "content": CHECK_SYS_PROMPT},
                 {"role": "user", "content": CHECK_USER_PROMPT.format(
-                    schema=schema, query_1=query1, query_2=query2
+                    nl_query=nl_query,
+                    mongo_query=predicted_mongo_query,
+                    schema=schema
                 )}
             ],
             temperature=0
@@ -66,7 +74,7 @@ def eval_csv(file_path: str, eval_report_prefix: str = None, eval_dir: str = Non
     
     with ThreadPoolExecutor() as executor:
         future_to_query = {
-            executor.submit(eval_single_response, row["mongo_query"], row["reconstructed_query"], row["schema"]): index
+            executor.submit(eval_single_response, row["natural_language_query"], row["mongo_query"], row["schema"], row["reconstructed_query"]): index
             for index, row in df.iterrows()
         }
 
@@ -85,6 +93,8 @@ def eval_csv(file_path: str, eval_report_prefix: str = None, eval_dir: str = Non
     logger.info(f"Accuracy: {accuracy:.2%} ({correct_count}/{total_count})")
     if output_path is not None:
         logger.info(f"Saving results to {output_path}")
+        df_result = pd.DataFrame(results, columns=["is_correct", "reason_for_fail"])
+        df = pd.concat([df, df_result], axis=1)
         df.to_csv(output_path, index=False)
     if eval_report_prefix is not None:
         # report path = eval_report/"input_file_name"+"_eval_report_prefice.csv" 
